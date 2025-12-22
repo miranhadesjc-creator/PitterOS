@@ -66,47 +66,11 @@
             <div class="icon-img games-icon">🎮</div>
             <span>Games</span>
         </div>
-        <!-- Chrome removed as requested -->
-        <div class="desktop-icon" data-app="youtube">
-            <div class="icon-img youtube-icon">
-                <img src="assets/youtube_icon.png" alt="YouTube">
+        <div class="desktop-icon" data-app="game-hub">
+            <div class="icon-img game-dev-space-icon">
+                <img src="assets/game_hub_icon.png" alt="Game Hub">
             </div>
-            <span>YouTube</span>
-        </div>
-        <div class="desktop-icon" data-app="steam">
-            <div class="icon-img steam-icon">
-                <img src="assets/steam_icon.svg" alt="Steam">
-            </div>
-            <span>Steam</span>
-        </div>
-        <div class="desktop-icon" data-app="google">
-            <div class="icon-img google-icon">
-                <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
-                    alt="Google">
-            </div>
-            <span>Google</span>
-        </div>
-        <div class="desktop-icon" data-app="ubuntu-vm">
-            <div class="icon-img ubuntu-icon">🐧</div>
-            <span>Ubuntu VM</span>
-        </div>
-        <div class="desktop-icon" data-app="whatsapp">
-            <div class="icon-img whatsapp-icon">
-                <img src="assets/whatsapp_icon.png" alt="WhatsApp">
-            </div>
-            <span>WhatsApp</span>
-        </div>
-        <div class="desktop-icon" data-app="discord">
-            <div class="icon-img discord-icon">
-                <img src="assets/discord_icon.png" alt="Discord">
-            </div>
-            <span>Discord</span>
-        </div>
-        <div class="desktop-icon" data-app="telegram">
-            <div class="icon-img telegram-icon">
-                <img src="assets/telegram_icon.png" alt="Telegram">
-            </div>
-            <span>Telegram</span>
+            <span>Game Hub</span>
         </div>
 
         <!-- Windows -->
@@ -359,6 +323,25 @@
             </div>
         </div>
 
+        <!-- Window: Game Hub -->
+        <div class="window hidden" id="window-game-hub" style="top: 50px; left: 100px; width: 1000px; height: 750px;">
+            <div class="window-header" style="background: #1a1a2e; color: white;">
+                <div class="window-title">
+                    <img src="assets/game_hub_icon.png" alt="GH" style="width: 16px; height: 16px; margin-right: 8px;">
+                    Game Hub
+                </div>
+                <div class="window-controls">
+                    <button class="win-btn minimize" style="color: white;">─</button>
+                    <button class="win-btn maximize" style="color: white;">☐</button>
+                    <button class="win-btn close" style="color: white;">✕</button>
+                </div>
+            </div>
+            <div class="window-content browser-content" style="padding: 0; background: #000;">
+                <iframe id="game-hub-iframe" src="about:blank"
+                    style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+        </div>
+
         <!-- Window: Google Chrome -->
         <div class="window hidden" id="window-chrome" style="top: 30px; left: 150px; width: 900px; height: 600px;">
             <div class="window-header">
@@ -393,121 +376,7 @@
             </div>
         </div>
 
-        <!-- Window: YouTube -->
-        <div class="window hidden" id="window-youtube" style="top: 50px; left: 170px; width: 1000px; height: 700px;">
-            <div class="window-header">
-                <div class="window-title">
-                    <span class="window-icon"><img src="assets/youtube_icon.png" alt="YT"
-                            style="width: 16px; height: 16px; vertical-align: middle;"></span>
-                    YouTube
-                </div>
-                <div class="window-controls">
-                    <button class="win-btn minimize">─</button>
-                    <button class="win-btn maximize">☐</button>
-                    <button class="win-btn close">✕</button>
-                </div>
-            </div>
-            <div class="window-content browser-content">
-                <div class="browser-toolbar">
-                    <div class="browser-nav">
-                        <button id="youtube-btn-back">←</button>
-                        <button id="youtube-btn-reload">↻</button>
-                        <button id="youtube-btn-external" title="Abrir no Navegador Externo">🌐</button>
-                    </div>
-                    <div class="browser-address">
-                        <input type="text" id="youtube-address-bar" readonly value="https://www.youtube.com">
-                    </div>
-                </div>
-                <iframe id="youtube-iframe" src="about:blank"></iframe>
-            </div>
-        </div>
-
-        <!-- Window: WhatsApp -->
-        <div class="window hidden" id="window-whatsapp" style="top: 60px; left: 180px; width: 1000px; height: 700px;">
-            <div class="window-header">
-                <div class="window-title">
-                    <span class="window-icon"><img src="assets/whatsapp_icon.png" alt="WA"
-                            style="width: 16px; height: 16px; vertical-align: middle;"></span>
-                    WhatsApp
-                </div>
-                <div class="window-controls">
-                    <button class="win-btn minimize">─</button>
-                    <button class="win-btn maximize">☐</button>
-                    <button class="win-btn close">✕</button>
-                </div>
-            </div>
-            <div class="window-content browser-content">
-                <div class="browser-toolbar">
-                    <div class="browser-nav">
-                        <button id="whatsapp-btn-back">←</button>
-                        <button id="whatsapp-btn-reload">↻</button>
-                        <button id="whatsapp-btn-external" title="Abrir no Navegador Externo">🌐</button>
-                    </div>
-                    <div class="browser-address">
-                        <input type="text" id="whatsapp-address-bar" readonly value="https://web.whatsapp.com">
-                    </div>
-                </div>
-                <iframe id="whatsapp-iframe" src="about:blank"></iframe>
-            </div>
-        </div>
-
-        <!-- Window: Discord -->
-        <div class="window hidden" id="window-discord" style="top: 70px; left: 190px; width: 1000px; height: 700px;">
-            <div class="window-header">
-                <div class="window-title">
-                    <span class="window-icon"><img src="assets/discord_icon.png" alt="DC"
-                            style="width: 16px; height: 16px; vertical-align: middle;"></span>
-                    Discord
-                </div>
-                <div class="window-controls">
-                    <button class="win-btn minimize">─</button>
-                    <button class="win-btn maximize">☐</button>
-                    <button class="win-btn close">✕</button>
-                </div>
-            </div>
-            <div class="window-content browser-content">
-                <div class="browser-toolbar">
-                    <div class="browser-nav">
-                        <button id="discord-btn-back">←</button>
-                        <button id="discord-btn-reload">↻</button>
-                        <button id="discord-btn-external" title="Abrir no Navegador Externo">🌐</button>
-                    </div>
-                    <div class="browser-address">
-                        <input type="text" id="discord-address-bar" readonly value="https://discord.com/app">
-                    </div>
-                </div>
-                <iframe id="discord-iframe" src="about:blank"></iframe>
-            </div>
-        </div>
-
-        <!-- Window: Telegram -->
-        <div class="window hidden" id="window-telegram" style="top: 80px; left: 200px; width: 1000px; height: 700px;">
-            <div class="window-header">
-                <div class="window-title">
-                    <span class="window-icon"><img src="assets/telegram_icon.png" alt="TG"
-                            style="width: 16px; height: 16px; vertical-align: middle;"></span>
-                    Telegram
-                </div>
-                <div class="window-controls">
-                    <button class="win-btn minimize">─</button>
-                    <button class="win-btn maximize">☐</button>
-                    <button class="win-btn close">✕</button>
-                </div>
-            </div>
-            <div class="window-content browser-content">
-                <div class="browser-toolbar">
-                    <div class="browser-nav">
-                        <button id="telegram-btn-back">←</button>
-                        <button id="telegram-btn-reload">↻</button>
-                        <button id="telegram-btn-external" title="Abrir no Navegador Externo">🌐</button>
-                    </div>
-                    <div class="browser-address">
-                        <input type="text" id="telegram-address-bar" readonly value="https://web.telegram.org">
-                    </div>
-                </div>
-                <iframe id="telegram-iframe" src="about:blank"></iframe>
-            </div>
-        </div>
+        <!-- Windows -->
 
         <!-- Window: Steam -->
         <div class="window hidden" id="window-steam" style="top: 60px; left: 180px; width: 1000px; height: 750px;">
@@ -897,18 +766,6 @@
             <button class="taskbar-app" data-app="file-explorer">📁</button>
             <button class="taskbar-app active" data-app="task-manager">⚙️</button>
             <button class="taskbar-app" data-app="terminal">💻</button>
-            <button class="taskbar-app" data-app="youtube" title="YouTube">
-                <img src="assets/youtube_icon.png" alt="YT" style="width: 24px; height: 24px; pointer-events: none;">
-            </button>
-            <button class="taskbar-app" data-app="whatsapp" title="WhatsApp">
-                <img src="assets/whatsapp_icon.png" alt="WA" style="width: 20px; height: 20px;">
-            </button>
-            <button class="taskbar-app" data-app="discord" title="Discord">
-                <img src="assets/discord_icon.png" alt="DC" style="width: 20px; height: 20px;">
-            </button>
-            <button class="taskbar-app" data-app="telegram" title="Telegram">
-                <img src="assets/telegram_icon.png" alt="TG" style="width: 20px; height: 20px;">
-            </button>
         </div>
         <div class="taskbar-right">
             <div class="system-tray">

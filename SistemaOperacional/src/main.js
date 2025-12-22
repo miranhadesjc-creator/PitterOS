@@ -45,12 +45,8 @@ class OperatingSystem {
             { id: 'file-explorer', name: 'Arquivos', icon: '📁' },
             { id: 'system-info', name: 'Sistema', icon: 'ℹ️' },
             { id: 'games', name: 'Games', icon: '🎮' },
-            { id: 'youtube', name: 'YouTube', icon: '<img src="assets/youtube_icon.png" style="width: 48px; height: 48px; object-fit: contain;">' },
-            { id: 'whatsapp', name: 'WhatsApp', icon: '<img src="assets/whatsapp_icon.png" style="width: 48px; height: 48px; object-fit: contain;">' },
-            { id: 'discord', name: 'Discord', icon: '<img src="assets/discord_icon.png" style="width: 48px; height: 48px; object-fit: contain;">' },
-            { id: 'telegram', name: 'Telegram', icon: '<img src="assets/telegram_icon.png" style="width: 48px; height: 48px; object-fit: contain;">' },
             { id: 'google', name: 'Google', icon: '<img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" style="width: 48px; height: 48px; object-fit: contain;">' },
-            { id: 'ubuntu-vm', name: 'Ubuntu VM', icon: '🐧' }
+            { id: 'game-hub', name: 'Game Hub', icon: '<img src="assets/game_hub_icon.png" style="width: 48px; height: 48px; object-fit: contain;">' }
         ];
     }
 
@@ -96,17 +92,15 @@ class OperatingSystem {
             'file-explorer',
             'settings',
             'games',
-            'youtube',
-            'whatsapp',
-            'discord',
-            'telegram',
             'google',
-            'ubuntu-vm'
+            'game-hub'
         ];
 
         windows.forEach(id => {
             const el = document.getElementById(`window-${id}`);
             if (el) {
+                // Mover para o body para garantir que fiquem acima de qualquer contexto de empilhamento (como .desktop)
+                document.body.appendChild(el);
                 windowManager.register(id, el);
             }
         });
@@ -120,67 +114,6 @@ class OperatingSystem {
         this.apps.settings = new SettingsApp(this.desktop);
         this.apps.games = new GamesApp(windowManager);
         this.apps.games.init();
-        this.apps.ubuntuVM = new UbuntuVMApp();
-
-        // Chrome removed as requested by user
-
-
-        // YouTube
-        this.apps.youtube = new BrowserApp(windowManager, {
-            windowId: 'window-youtube',
-            iframeId: 'youtube-iframe',
-            addressBarId: 'youtube-address-bar',
-            btnBackId: 'youtube-btn-back',
-            btnReloadId: 'youtube-btn-reload',
-            btnHomeId: 'youtube-btn-home',
-            homeUrl: 'https://www.youtube.com/embed/videoseries?list=PLFgquLnL59alCl_jYYB7ypEKzG_7v60TM'
-        });
-        this.apps.youtube.init();
-        document.getElementById('youtube-btn-external')?.addEventListener('click', () => {
-            window.open('https://www.youtube.com', '_blank');
-        });
-
-        // WhatsApp
-        this.apps.whatsapp = new BrowserApp(windowManager, {
-            windowId: 'window-whatsapp',
-            iframeId: 'whatsapp-iframe',
-            addressBarId: 'whatsapp-address-bar',
-            btnBackId: 'whatsapp-btn-back',
-            btnReloadId: 'whatsapp-btn-reload',
-            homeUrl: 'https://web.whatsapp.com'
-        });
-        this.apps.whatsapp.init(true);
-        document.getElementById('whatsapp-btn-external')?.addEventListener('click', () => {
-            window.open('https://web.whatsapp.com', '_blank');
-        });
-
-        // Discord
-        this.apps.discord = new BrowserApp(windowManager, {
-            windowId: 'window-discord',
-            iframeId: 'discord-iframe',
-            addressBarId: 'discord-address-bar',
-            btnBackId: 'discord-btn-back',
-            btnReloadId: 'discord-btn-reload',
-            homeUrl: 'https://discord.com/app'
-        });
-        this.apps.discord.init(true);
-        document.getElementById('discord-btn-external')?.addEventListener('click', () => {
-            window.open('https://discord.com/app', '_blank');
-        });
-
-        // Telegram
-        this.apps.telegram = new BrowserApp(windowManager, {
-            windowId: 'window-telegram',
-            iframeId: 'telegram-iframe',
-            addressBarId: 'telegram-address-bar',
-            btnBackId: 'telegram-btn-back',
-            btnReloadId: 'telegram-btn-reload',
-            homeUrl: 'https://web.telegram.org'
-        });
-        this.apps.telegram.init(true);
-        document.getElementById('telegram-btn-external')?.addEventListener('click', () => {
-            window.open('https://web.telegram.org', '_blank');
-        });
 
         // Google Search
         this.apps.google = new BrowserApp(windowManager, {
@@ -192,6 +125,21 @@ class OperatingSystem {
             homeUrl: 'https://www.google.com/search?igu=1'
         });
         this.apps.google.init();
+
+        // Game Hub Shortcut (Dedicated Window)
+        const gdsIcon = document.querySelector('.desktop-icon[data-app="game-hub"]');
+        if (gdsIcon) {
+            gdsIcon.addEventListener('dblclick', () => {
+                const win = document.getElementById('window-game-hub');
+                const iframe = document.getElementById('game-hub-iframe');
+                if (win && iframe) {
+                    windowManager.open('game-hub');
+                    if (iframe.src === 'about:blank' || iframe.src === '') {
+                        iframe.src = 'https://arthurbrando1-cell.github.io/Game-Dev-Space/';
+                    }
+                }
+            });
+        }
     }
     initDesktopClock() {
         const clockEl = document.getElementById('top-bar-clock');

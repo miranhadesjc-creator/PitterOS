@@ -25,16 +25,13 @@ export class Taskbar {
 
         // Dados dos Apps (Fonte da verdade para busca)
         this.appList = [
-            { id: 'youtube', name: 'YouTube', icon: '🎬' },
-            { id: 'whatsapp', name: 'WhatsApp', icon: '💬' },
-            { id: 'discord', name: 'Discord', icon: '🎮' },
-            { id: 'telegram', name: 'Telegram', icon: '✈️' },
             { id: 'google', name: 'Google', icon: '🔍' },
             { id: 'settings', name: 'Configurações', icon: '⚙️' },
             { id: 'task-manager', name: 'Gerenciador de Tarefas', icon: '📊' },
             { id: 'terminal', name: 'Terminal', icon: '💻' },
             { id: 'file-explorer', name: 'Este Computador', icon: '📁' },
-            { id: 'system-info', name: 'Informações', icon: 'ℹ️' }
+            { id: 'system-info', name: 'Informações', icon: 'ℹ️' },
+            { id: 'game-hub', name: 'Game Hub', icon: '🚀' }
         ];
 
         this.initClock();

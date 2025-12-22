@@ -211,7 +211,7 @@ export class WindowManager {
 
         this.windows.forEach((w, id) => {
             w.element.classList.remove('active');
-            w.element.style.zIndex = Math.max(1, parseInt(w.element.style.zIndex || 1));
+            w.element.style.zIndex = Math.max(100, parseInt(w.element.style.zIndex || 100));
         });
 
         win.element.classList.remove('hidden');
