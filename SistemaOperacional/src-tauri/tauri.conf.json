@@ -44,16 +44,26 @@
       }
     },
     "bundle": {
-      "active": false,
+      "active": true,
       "category": "DeveloperTool",
-      "copyright": "",
+      "copyright": "Copyright © 2024 Jean Pitter",
       "deb": {
-        "depends": []
+        "depends": [
+          "libwebkit2gtk-4.0-37",
+          "libgtk-3-0",
+          "libayatana-appindicator3-1"
+        ]
       },
       "externalBin": [],
-      "icon": [],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
       "identifier": "com.pitteros.dev",
-      "longDescription": "",
+      "longDescription": "Pitter OS - Experiência de desktop simulada em Tauri.",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",
@@ -62,7 +72,7 @@
         "signingIdentity": null
       },
       "resources": [],
-      "shortDescription": "",
+      "shortDescription": "Pitter OS Desktop",
       "targets": "all",
       "windows": {
         "certificateThumbprint": null,
