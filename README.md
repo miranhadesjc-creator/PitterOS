@@ -57,3 +57,7 @@ Visual do inicializador:
  [OK] Node.js encontrado!
  [INFO] Iniciando o Pitter OS...
 
+INSTALA O NODE.JS 
+VAI NO POWER SHELL E ESCREVE npm install
+E EXECUTA O .BAT DESKTOP
+
