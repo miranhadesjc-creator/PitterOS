@@ -184,6 +184,15 @@
                             </label>
                         </div>
 
+                        <!-- HUD Controls -->
+                        <div class="settings-group" style="margin-bottom: 24px;">
+                            <label style="display: flex; flex-direction: column; gap: 8px;">
+                                <span>Relógio do Desktop</span>
+                                <button id="btn-move-hud" class="win-button" style="width: fit-content;">Ver
+                                    HUD</button>
+                            </label>
+                        </div>
+
                         <h2>Plano de Fundo</h2>
                         <div class="wallpaper-section">
                             <h3>Escolha seu visual</h3>
@@ -861,7 +870,6 @@
             <div class="taskbar-divider"></div>
             <button class="taskbar-app" data-app="file-explorer">📁</button>
             <button class="taskbar-app active" data-app="task-manager">⚙️</button>
-            <button class="taskbar-app" data-app="browser">🌐</button>
             <button class="taskbar-app" data-app="terminal">💻</button>
             <button class="taskbar-app" data-app="youtube" title="YouTube">
                 <img src="assets/youtube_icon.png" alt="YT" style="width: 24px; height: 24px; pointer-events: none;">
@@ -989,26 +997,8 @@
         <div class="context-item" data-action="refresh">🔄 Atualizar</div>
         <div class="context-separator"></div>
         <div class="context-item" data-action="personalize">🎨 Personalizar</div>
-    </div>
-
-    <!-- Selection Box -->
-    <div id="selection-box" class="selection-box hidden"></div>
-
-    <!-- Desktop Context Menu -->
-    <div id="context-menu" class="context-menu hidden">
-        <div class="context-item" id="ctx-view">
-            <span>👁️ Exibir</span>
-            <span class="arrow">▶</span>
-            <div class="submenu">
-                <div class="context-item" data-action="size-large">Ícones Grandes</div>
-                <div class="context-item" data-action="size-medium">Ícones Médios</div>
-                <div class="context-item" data-action="size-small">Ícones Pequenos</div>
-            </div>
-        </div>
-        <div class="context-separator"></div>
-        <div class="context-item" data-action="refresh">🔄 Atualizar</div>
-        <div class="context-separator"></div>
-        <div class="context-item" data-action="personalize">🎨 Personalizar</div>
+        <div class="context-separator hidden" id="ctx-sep-delete"></div>
+        <div class="context-item hidden" id="ctx-delete" data-action="delete-app">🗑️ Excluir</div>
     </div>
 
     <!-- Selection Box -->

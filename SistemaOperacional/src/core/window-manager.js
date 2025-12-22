@@ -8,7 +8,7 @@ export class WindowManager {
         this.activeWindow = null;
         this.isDragging = false;
         this.dragOffset = { x: 0, y: 0 };
-        this.zIndex = 100;
+        this.zIndex = 10000;
 
         // Estado de redimensionamento
         this.isResizing = false;

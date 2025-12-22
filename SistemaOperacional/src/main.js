@@ -217,40 +217,54 @@ class OperatingSystem {
     initHudMove() {
         const btn = document.getElementById('btn-move-hud');
         const clock = document.getElementById('desktop-clock');
-        const desktop = document.getElementById('desktop');
+
         let isMoving = false;
         let isDragging = false;
         let offset = { x: 0, y: 0 };
 
-        if (!btn || !clock) return;
+        if (!clock) return;
 
-        btn.onclick = () => {
-            isMoving = !isMoving;
-            if (isMoving) {
-                btn.textContent = 'Feito';
-                btn.style.background = 'var(--win-accent)';
-                desktop.classList.add('hud-moving');
-            } else {
-                btn.textContent = 'Mover HUD';
-                btn.style.background = 'rgba(255,255,255,0.1)';
-                desktop.classList.remove('hud-moving');
-
-                localStorage.setItem('hud_clock_pos', JSON.stringify({
-                    top: clock.style.top,
-                    left: clock.style.left,
-                    transform: clock.style.transform
-                }));
-            }
-        };
-
+        // Restore saved position
         const savedPos = localStorage.getItem('hud_clock_pos');
         if (savedPos) {
             const pos = JSON.parse(savedPos);
             clock.style.top = pos.top;
             clock.style.left = pos.left;
             clock.style.transform = pos.transform;
+            clock.style.margin = '0'; // Ensure margin is 0 if it was moved
         }
 
+        // Toggle Move Mode
+        if (btn) {
+            btn.onclick = () => {
+                isMoving = !isMoving;
+                if (isMoving) {
+                    btn.textContent = 'Feito';
+                    btn.classList.add('primary');
+                    clock.style.border = '2px dashed rgba(255,255,255,0.5)';
+                    clock.style.borderRadius = '8px';
+                    clock.style.cursor = 'move';
+                    clock.style.backgroundColor = 'rgba(0,0,0,0.2)';
+                    clock.style.pointerEvents = 'auto'; // Enable interactions
+                } else {
+                    btn.textContent = 'Ver HUD';
+                    btn.classList.remove('primary');
+                    clock.style.border = 'none';
+                    clock.style.cursor = 'default';
+                    clock.style.backgroundColor = 'transparent';
+                    clock.style.pointerEvents = 'none'; // Disable interactions
+
+                    // Save to localStorage
+                    localStorage.setItem('hud_clock_pos', JSON.stringify({
+                        top: clock.style.top,
+                        left: clock.style.left,
+                        transform: clock.style.transform
+                    }));
+                }
+            };
+        }
+
+        // Drag Logic
         clock.onmousedown = (e) => {
             if (!isMoving) return;
             isDragging = true;
@@ -261,17 +275,19 @@ class OperatingSystem {
                 y: e.clientY - rect.top
             };
 
-            clock.style.transition = 'none';
             clock.style.transform = 'none';
+            clock.style.margin = '0';
             clock.style.left = rect.left + 'px';
             clock.style.top = rect.top + 'px';
-            clock.style.margin = '0';
         };
 
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
+            e.preventDefault();
+
             const x = e.clientX - offset.x;
             const y = e.clientY - offset.y;
+
             clock.style.left = x + 'px';
             clock.style.top = y + 'px';
         });
@@ -279,7 +295,6 @@ class OperatingSystem {
         document.addEventListener('mouseup', () => {
             if (!isDragging) return;
             isDragging = false;
-            clock.style.transition = '';
         });
     }
 
@@ -408,10 +423,42 @@ class OperatingSystem {
             desktop.classList.add(savedSize);
 
             // --- CONTEXT MENU ---
+            let targetIcon = null;
+            const protectedApps = ['terminal', 'settings', 'task-manager', 'file-explorer', 'system-info', 'google', 'ubuntu-vm'];
+
+            // Initial hide of deleted apps
+            const deletedApps = JSON.parse(localStorage.getItem('deleted_apps') || '[]');
+            document.querySelectorAll('.desktop-icon').forEach(icon => {
+                if (deletedApps.includes(icon.dataset.app)) {
+                    icon.classList.add('hidden');
+                }
+            });
+
             desktop.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 // Hide if clicking on existing window or non-desktop elements
                 if (e.target.closest('.window') || e.target.closest('.taskbar')) return;
+
+                const clickedIcon = e.target.closest('.desktop-icon');
+                const deleteItem = document.getElementById('ctx-delete');
+                const deleteSep = document.getElementById('ctx-sep-delete');
+
+                targetIcon = null;
+
+                if (clickedIcon) {
+                    const appId = clickedIcon.dataset.app;
+                    if (!protectedApps.includes(appId)) {
+                        targetIcon = clickedIcon;
+                        deleteItem?.classList.remove('hidden');
+                        deleteSep?.classList.remove('hidden');
+                    } else {
+                        deleteItem?.classList.add('hidden');
+                        deleteSep?.classList.add('hidden');
+                    }
+                } else {
+                    deleteItem?.classList.add('hidden');
+                    deleteSep?.classList.add('hidden');
+                }
 
                 const x = e.clientX;
                 const y = e.clientY;
@@ -444,6 +491,16 @@ class OperatingSystem {
                             location.reload();
                         } else if (action === 'personalize') {
                             windowManager.open('settings');
+                        } else if (action === 'delete-app' && targetIcon) {
+                            const appId = targetIcon.dataset.app;
+                            if (appId && !protectedApps.includes(appId)) {
+                                targetIcon.classList.add('hidden');
+                                const currentDeleted = JSON.parse(localStorage.getItem('deleted_apps') || '[]');
+                                if (!currentDeleted.includes(appId)) {
+                                    currentDeleted.push(appId);
+                                    localStorage.setItem('deleted_apps', JSON.stringify(currentDeleted));
+                                }
+                            }
                         }
                     });
                 });
