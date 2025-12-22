@@ -8,21 +8,28 @@ echo       PITTER OS - Inicializador
 echo  ====================================
 echo.
 
-REM Verifica se o Node.js esta instalado
-where node >nul 2>nul
-if %errorlevel% neq 0 (
+REM Verifica se esta rodando de dentro de um ZIP
+if "%~dp0"=="%TEMP%\" (
     color 0C
-    echo  [ERRO] Node.js nao esta instalado!
+    echo  [ERRO] VOCE NAO EXTRAIU OS ARQUIVOS!
     echo.
-    echo  Para usar o Pitter OS, voce precisa instalar o Node.js:
-    echo  1. Acesse: https://nodejs.org/
-    echo  2. Baixe a versao LTS (recomendada)
-    echo  3. Instale normalmente
-    echo  4. Reinicie o computador
-    echo  5. Execute este arquivo novamente
+    echo  Por favor, extraia o arquivo ZIP para uma pasta comum antes de executar.
     echo.
     pause
-    exit /b 1
+    exit
+)
+
+REM Verifica se o Node.js esta instalado
+node -v >nul 2>nul
+if %errorlevel% neq 0 (
+    color 0C
+    echo  [ERRO] Node.js nao encontrado!
+    echo.
+    echo  Voce precisa instalar o Node.js para rodar o Pitter OS.
+    echo  Baixe em: https://nodejs.org/ (Versao LTS)
+    echo.
+    pause
+    exit
 )
 
 echo  [OK] Node.js encontrado!
@@ -51,9 +58,7 @@ echo  [INFO] Iniciando o Pitter OS...
 echo.
 npm run dev
 
-if %errorlevel% neq 0 (
-    color 0C
-    echo.
-    echo  [ERRO] Ocorreu um erro ao iniciar o Pitter OS.
-    pause
-)
+echo.
+echo  [AVISO] O Pitter OS foi encerrado.
+pause
+exit /b 0
