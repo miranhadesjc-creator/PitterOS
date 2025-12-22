@@ -91,9 +91,10 @@ function createWindow() {
         height: 800,
         minWidth: 800,
         minHeight: 600,
-        frame: false, // Remove a barra de título padrão do Windows
-        titleBarStyle: 'hidden',
-        icon: path.join(__dirname, 'src', 'assets', 'icon.png'),
+        frame: true, // Mostra a barra de título do Windows com X, minimizar, maximizar
+        title: 'Pitter OS',
+        icon: path.join(__dirname, 'pitter-os.ico'),
+        autoHideMenuBar: true, // Esconde o menu mas mantém os controles
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
