@@ -40,9 +40,20 @@ Principais objetivos:
 
 ---
 
-## 🚀 Como Executar (Emulador)
+Para o usuário que baixar:
+Baixar e instalar o Node.js de https://nodejs.org (apenas uma vez)
+Baixar o projeto do GitHub (ZIP ou git clone)
+Dar dois cliques no 
+abrir_pitter_os.bat
+O que o .bat faz automaticamente:
+Verificação	Ação
+❌ Node.js não instalado	Mostra instruções claras de como instalar
+❌ Primeira execução (sem node_modules)	Roda npm install automaticamente
+✅ Tudo OK	Inicia o Pitter OS
+Visual do inicializador:
+====================================
+      PITTER OS - Inicializador
+ ====================================
+ [OK] Node.js encontrado!
+ [INFO] Iniciando o Pitter OS...
 
-```bash
-# Exemplo genérico
-make
-qemu-system-x86_64 pitteros.iso
