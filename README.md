@@ -22,11 +22,8 @@ Principais objetivos:
 
 - 🧠 Kernel próprio  
 - ⚙️ Gerenciamento básico de processos  
-- 💾 Gerenciamento de memória  
 - ⌨️ Suporte a teclado  
 - 🖥️ Interface básica (CLI ou gráfica futuramente)  
-- 📂 Sistema de arquivos simples  
-- 🔌 Drivers básicos  
 
 ---
 
@@ -34,7 +31,7 @@ Principais objetivos:
 
 *(Pode adaptar conforme seu projeto)*
 
-- Linguagem C  
+- Linguagem JS, Tauri, Rust e css 
 - Assembly (x86 / x64)  
 - GCC  
 - NASM  
