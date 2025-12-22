@@ -1,79 +1,61 @@
-# Sistema Operacional - Tauri Kernel
+# 🕸️ Pitter OS (Ubuntu Edition)
 
-Um sistema operacional simulado construído com **Tauri** (Rust) no backend e tecnologias web no frontend.
+Bem-vindo ao **Pitter OS**, um simulador de sistema operacional ultra-realista baseado em Ubuntu, rodando diretamente no seu Windows através do Electron.
 
-## 🚀 Funcionalidades
+![Pitter OS Logo](https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png) <!-- Sugestão: Substituir por um logo oficial depois -->
 
-- **Kernel em Rust** - Backend robusto com gerenciamento de estado
-- **Gerenciador de Processos** - Criar, listar e encerrar processos
-- **Terminal Interativo** - Execute comandos do sistema
-- **Interface Moderna** - Design escuro com gradientes e animações
+## 🚀 Como instalar e rodar (Para Usuários)
 
-## 📋 Pré-requisitos
+Se você acabou de baixar o Pitter OS, siga estes passos simples:
 
-Antes de executar, você precisa ter instalado:
+1.  **Instale o Node.js**: O Pitter OS precisa do Node.js para funcionar. Baixe e instale a versão **LTS** em: [nodejs.org](https://nodejs.org/).
+2.  **Extraia o Arquivo**: Se você baixou um arquivo `.zip`, **extraia todo o conteúdo** para uma pasta no seu computador (Ex: Área de Trabalho). **Não tente rodar de dentro do WinRAR/ZIP**.
+3.  **Inicie o Sistema**:
+    - Abra a pasta extraída.
+    - Dê um duplo clique no arquivo `abrir_pitter_os.bat`.
+    - Na primeira vez, ele vai baixar as dependências automaticamente (isso pode demorar uns 2 minutos).
+    - Divirta-se!
 
-1. **Node.js** (v18+) - [nodejs.org](https://nodejs.org/)
-2. **Rust** - [rustup.rs](https://rustup.rs/)
+---
 
-Para instalar o Rust no Windows:
-```powershell
-winget install Rustlang.Rustup
-```
+## 🛠️ Recursos Atuais
 
-## 🛠️ Instalação
+- **Google Chrome Real**: Navegue em qualquer site (YouTube, Google, etc.) usando a tecnologia Webview.
+- **Game Hub**: Central de jogos integrada para passar o tempo.
+- **Terminal Ubuntu**: Simulação de comandos Linux via WSL (visto que o Pitter OS foca na experiência Ubuntu).
+- **Interface Fluida**: Efeito "Jelly Window" ao arrastar janelas e animações de janelas maximizadas.
+- **Taskbar Inteligente**: Indicadores de aplicativos abertos e foco em tempo real.
 
-1. Instale as dependências do Node.js:
+---
+
+## 💻 Para Desenvolvedores
+
+Se você quer modificar o código do Pitter OS:
+
+### Requisitos
+- Node.js instalado.
+- WSL (Windows Subsystem for Linux) instalado para os comandos de terminal funcionarem.
+
+### Comandos
 ```bash
+# Instalar dependências
 npm install
-```
 
-2. Execute em modo de desenvolvimento:
-```bash
+# Rodar em modo de desenvolvimento
 npm run dev
-```
 
-3. Para criar o executável:
-```bash
+# Gerar o instalador (.exe)
 npm run build
 ```
 
-## 📁 Estrutura do Projeto
+---
 
-```
-SistemaOperacional/
-├── src/                    # Frontend (HTML/CSS/JS)
-│   ├── index.html
-│   ├── styles.css
-│   └── main.js
-├── src-tauri/              # Backend (Rust)
-│   ├── src/
-│   │   └── main.rs         # Kernel e comandos
-│   ├── Cargo.toml
-│   ├── build.rs
-│   └── tauri.conf.json
-├── package.json
-└── README.md
-```
+## ❓ FAQ - Solução de Problemas
 
-## 💻 Comandos do Terminal
+- **A tela do navegador está preta?**: Certifique-se de que você está conectado à internet e tente recarregar o navegador ou digitar a URL novamente.
+- **O terminal não reconhece comandos?**: O Pitter OS usa o **WSL** do Windows para rodar comandos reais de Linux. Digite `wsl --install` no seu PowerShell (como administrador) se quiser habilitar essa função.
+- **O prompt fecha sozinho?**: Verifique se você extraiu a pasta e se o Node.js está instalado corretamente.
 
-- `help` - Mostra ajuda
-- `info` - Informações do sistema
-- `ps` - Lista processos ativos
-- `clear` - Limpa o terminal
-- `greet <nome>` - Saudação personalizada
+---
 
-## 🔧 API do Kernel (Comandos Tauri)
-
-| Comando | Descrição |
-|---------|-----------|
-| `get_system_info` | Retorna informações do sistema |
-| `create_process` | Cria um novo processo |
-| `list_processes` | Lista todos os processos |
-| `kill_process` | Encerra um processo pelo PID |
-| `greet` | Retorna uma saudação |
-
-## 📄 Licença
-
-MIT License
+**Criado por Jean Pitter** 🚀🕸️
