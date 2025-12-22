@@ -15,12 +15,16 @@ import { GamesApp } from './apps/games-app.js';
 import { BrowserApp } from './apps/browser-app.js';
 import { UbuntuVMApp } from './apps/ubuntu-vm.js';
 import { ControlCenter } from './core/control-center.js';
+import { BatteryManager } from './core/battery-manager.js';
+import { WifiManager } from './core/wifi-manager.js';
 
 class OperatingSystem {
     constructor() {
         this.taskbar = new Taskbar(windowManager);
         this.desktop = new Desktop(windowManager);
         this.controlCenter = new ControlCenter();
+        this.batteryManager = new BatteryManager();
+        this.wifiManager = new WifiManager();
 
         // Aplicativos
         this.apps = {
@@ -57,6 +61,8 @@ class OperatingSystem {
         this.taskbar.init();
         this.desktop.init(); // Carrega wallpaper salvo
         this.controlCenter.init();
+        this.batteryManager.init(); // Sincroniza bateria com notebook
+        this.wifiManager.init(); // Sincroniza WiFi com computador
         this.initDesktopClock();
         this.updateProfileUI();
         this.initLauncher();
@@ -422,6 +428,18 @@ class OperatingSystem {
             desktop.classList.remove('icons-small', 'icons-medium', 'icons-large');
             desktop.classList.add(savedSize);
 
+            // Mark active option in menu
+            const updateMenuActiveOption = (size) => {
+                contextMenu?.querySelectorAll('[data-action^="size-"]').forEach(item => {
+                    if (item.dataset.action === `size-${size}`) {
+                        item.classList.add('active-option');
+                    } else {
+                        item.classList.remove('active-option');
+                    }
+                });
+            };
+            updateMenuActiveOption(savedSize.split('-')[1]);
+
             // --- CONTEXT MENU ---
             let targetIcon = null;
             const protectedApps = ['terminal', 'settings', 'task-manager', 'file-explorer', 'system-info', 'google', 'ubuntu-vm'];
@@ -436,7 +454,6 @@ class OperatingSystem {
 
             desktop.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-                // Hide if clicking on existing window or non-desktop elements
                 if (e.target.closest('.window') || e.target.closest('.taskbar')) return;
 
                 const clickedIcon = e.target.closest('.desktop-icon');
@@ -447,6 +464,10 @@ class OperatingSystem {
 
                 if (clickedIcon) {
                     const appId = clickedIcon.dataset.app;
+                    // Se clicar num ícone, seleciona ele
+                    document.querySelectorAll('.desktop-icon.selected').forEach(i => i.classList.remove('selected'));
+                    clickedIcon.classList.add('selected');
+
                     if (!protectedApps.includes(appId)) {
                         targetIcon = clickedIcon;
                         deleteItem?.classList.remove('hidden');
@@ -467,26 +488,40 @@ class OperatingSystem {
                     contextMenu.style.left = `${x}px`;
                     contextMenu.style.top = `${y}px`;
                     contextMenu.classList.remove('hidden');
+
+                    // Ajustar posição se sair da tela
+                    const rect = contextMenu.getBoundingClientRect();
+                    if (rect.right > window.innerWidth) {
+                        contextMenu.style.left = `${window.innerWidth - rect.width - 5}px`;
+                    }
+                    if (rect.bottom > window.innerHeight) {
+                        contextMenu.style.top = `${window.innerHeight - rect.height - 5}px`;
+                    }
                 }
             });
 
             // Hide menu on click or drag
-            document.addEventListener('click', () => {
-                if (contextMenu) contextMenu.classList.add('hidden');
+            document.addEventListener('mousedown', (e) => {
+                if (contextMenu && !contextMenu.contains(e.target)) {
+                    contextMenu.classList.add('hidden');
+                }
             });
 
             // Menu Actions
             if (contextMenu) {
                 contextMenu.querySelectorAll('.context-item').forEach(item => {
                     item.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevenir ocultar imediato para debug
                         const action = item.dataset.action;
                         if (!action) return;
 
                         if (action.startsWith('size-')) {
-                            const sizeClass = 'icons-' + action.split('-')[1]; // small, medium, large
+                            const size = action.split('-')[1];
+                            const sizeClass = 'icons-' + size;
                             desktop.classList.remove('icons-small', 'icons-medium', 'icons-large');
                             desktop.classList.add(sizeClass);
                             localStorage.setItem('desktop_icon_size', sizeClass);
+                            updateMenuActiveOption(size);
                         } else if (action === 'refresh') {
                             location.reload();
                         } else if (action === 'personalize') {
@@ -502,18 +537,20 @@ class OperatingSystem {
                                 }
                             }
                         }
+                        contextMenu.classList.add('hidden');
                     });
                 });
             }
 
             // --- SELECTION BOX ---
             desktop.addEventListener('mousedown', (e) => {
-                // Allow selection if clicking on desktop or its direct empty space
                 if (e.button !== 0) return;
+                if (e.target.closest('.window') || e.target.closest('.taskbar') || e.target.closest('.desktop-icon') || e.target.id === 'desktop-clock' || e.target.closest('.context-menu')) return;
 
-                // Allow start if target is desktop OR body (background) 
-                // AND NOT a window/taskbar/icon
-                if (e.target.closest('.window') || e.target.closest('.taskbar') || e.target.closest('.desktop-icon') || e.target.id === 'desktop-clock') return;
+                // Limpa seleção anterior se clicar no desktop vazio
+                document.querySelectorAll('.desktop-icon.selected').forEach(icon => {
+                    icon.classList.remove('selected');
+                });
 
                 isSelecting = true;
                 startX = e.clientX;
@@ -534,21 +571,64 @@ class OperatingSystem {
                 const currentX = e.clientX;
                 const currentY = e.clientY;
 
-                const width = Math.abs(currentX - startX);
-                const height = Math.abs(currentY - startY);
-                const left = Math.min(currentX, startX);
-                const top = Math.min(currentY, startY);
+                // Restringir à área do desktop
+                const rect = desktop.getBoundingClientRect();
+                const mouseX = Math.max(rect.left, Math.min(rect.right, currentX));
+                const mouseY = Math.max(rect.top, Math.min(rect.bottom, currentY));
+
+                const width = Math.abs(mouseX - startX);
+                const height = Math.abs(mouseY - startY);
+                const left = Math.min(mouseX, startX);
+                const top = Math.min(mouseY, startY);
 
                 selectionBox.style.width = `${width}px`;
                 selectionBox.style.height = `${height}px`;
                 selectionBox.style.left = `${left}px`;
                 selectionBox.style.top = `${top}px`;
+
+                // Detectar ícones dentro do quadrado de seleção
+                const selectionRect = {
+                    left: left,
+                    top: top,
+                    right: left + width,
+                    bottom: top + height
+                };
+
+                document.querySelectorAll('.desktop-icon:not(.hidden)').forEach(icon => {
+                    const iconRect = icon.getBoundingClientRect();
+
+                    const isIntersecting = !(
+                        iconRect.right < selectionRect.left ||
+                        iconRect.left > selectionRect.right ||
+                        iconRect.bottom < selectionRect.top ||
+                        iconRect.top > selectionRect.bottom
+                    );
+
+                    if (isIntersecting) {
+                        icon.classList.add('selected');
+                    } else {
+                        icon.classList.remove('selected');
+                    }
+                });
             });
 
             document.addEventListener('mouseup', () => {
                 if (isSelecting) {
                     isSelecting = false;
                     if (selectionBox) selectionBox.classList.add('hidden');
+                }
+            });
+
+            // Limpar seleção ao clicar em área vazia (já coberto pelo mousedown, mas garantindo)
+            desktop.addEventListener('click', (e) => {
+                if (e.target === desktop || e.target.id === 'wallpaper-container') {
+                    // Se não foi um arraste (width/height pequenos), limpa
+                    const rect = selectionBox.getBoundingClientRect();
+                    if (rect.width < 5 && rect.height < 5) {
+                        document.querySelectorAll('.desktop-icon.selected').forEach(icon => {
+                            icon.classList.remove('selected');
+                        });
+                    }
                 }
             });
         }
@@ -709,11 +789,13 @@ class OperatingSystem {
             };
         }
 
-        // Initial check on boot
+        // Initial check on boot - Removed to avoid locking on refresh as per user request
+        /*
         const hasPassword = localStorage.getItem('pitter_os_password');
         if (hasPassword && hasPassword.length > 0) {
             this.lockScreen();
         }
+        */
 
         // --- Custom Shortcut: L + S to Lock ---
         const pressedKeys = new Set();

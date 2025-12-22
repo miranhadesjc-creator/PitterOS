@@ -21,7 +21,7 @@
             12:00 PM
         </div>
         <div class="top-bar-right">
-            <span>📶</span>
+            <span id="top-bar-wifi">📶</span>
             <span>🔊</span>
             <span id="top-bar-battery">🔋 100%</span>
             <button id="btn-move-hud" class="top-bar-btn"
@@ -69,21 +69,20 @@
         <!-- Chrome removed as requested -->
         <div class="desktop-icon" data-app="youtube">
             <div class="icon-img youtube-icon">
-                <img src="assets/youtube_icon.png" alt="YouTube"
-                    style="width: 48px; height: 48px; object-fit: contain;">
+                <img src="assets/youtube_icon.png" alt="YouTube">
             </div>
             <span>YouTube</span>
         </div>
         <div class="desktop-icon" data-app="steam">
             <div class="icon-img steam-icon">
-                <img src="assets/steam_icon.svg" alt="Steam" style="width: 48px; height: 48px;">
+                <img src="assets/steam_icon.svg" alt="Steam">
             </div>
             <span>Steam</span>
         </div>
         <div class="desktop-icon" data-app="google">
             <div class="icon-img google-icon">
                 <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
-                    alt="Google" style="width: 48px; height: 48px; object-fit: contain;">
+                    alt="Google">
             </div>
             <span>Google</span>
         </div>
@@ -93,22 +92,19 @@
         </div>
         <div class="desktop-icon" data-app="whatsapp">
             <div class="icon-img whatsapp-icon">
-                <img src="assets/whatsapp_icon.png" alt="WhatsApp"
-                    style="width: 48px; height: 48px; object-fit: contain;">
+                <img src="assets/whatsapp_icon.png" alt="WhatsApp">
             </div>
             <span>WhatsApp</span>
         </div>
         <div class="desktop-icon" data-app="discord">
             <div class="icon-img discord-icon">
-                <img src="assets/discord_icon.png" alt="Discord"
-                    style="width: 48px; height: 48px; object-fit: contain;">
+                <img src="assets/discord_icon.png" alt="Discord">
             </div>
             <span>Discord</span>
         </div>
         <div class="desktop-icon" data-app="telegram">
             <div class="icon-img telegram-icon">
-                <img src="assets/telegram_icon.png" alt="Telegram"
-                    style="width: 48px; height: 48px; object-fit: contain;">
+                <img src="assets/telegram_icon.png" alt="Telegram">
             </div>
             <span>Telegram</span>
         </div>
@@ -845,6 +841,36 @@
         </div>
     </div>
 
+    <!-- WiFi Networks Panel -->
+    <div id="wifi-panel" class="wifi-panel hidden">
+        <div class="wifi-panel-header">
+            <span>Redes Disponíveis</span>
+            <button id="wifi-panel-close" class="wifi-panel-close">×</button>
+        </div>
+        <div class="wifi-networks-list" id="wifi-networks-list">
+            <!-- Redes serão adicionadas via JavaScript -->
+        </div>
+        <div class="wifi-panel-footer">
+            <button id="wifi-scan-btn">Procurar redes</button>
+            <div class="wifi-add-manual hidden" id="wifi-add-form">
+                <input type="text" id="wifi-new-name" placeholder="Nome da rede...">
+                <button id="wifi-add-btn">Adicionar</button>
+            </div>
+            <button id="wifi-show-add"
+                style="font-size: 11px; opacity: 0.7; background:none; border:none; color:white; cursor:pointer; margin-top:5px;">Adicionar
+                rede oculta...</button>
+        </div>
+    </div>
+    <!-- WiFi Password Modal -->
+    <div id="wifi-auth-modal" class="wifi-password-modal hidden">
+        <h3>Conectar à rede</h3>
+        <div id="auth-network-name" style="margin-bottom: 12px; font-size: 14px; opacity: 0.8;"></div>
+        <input type="password" id="wifi-password-input" placeholder="Digite a senha">
+        <div class="btn-group">
+            <button class="btn-cancel" id="wifi-auth-cancel">Cancelar</button>
+            <button class="btn-connect" id="wifi-auth-connect">Conectar</button>
+        </div>
+    </div>
     <!-- Taskbar -->
     <div class="taskbar">
         <button class="start-button">
@@ -886,9 +912,9 @@
         </div>
         <div class="taskbar-right">
             <div class="system-tray">
-                <span class="tray-icon">🔊</span>
-                <span class="tray-icon">📶</span>
-                <span class="tray-icon">🔋</span>
+                <span class="tray-icon" id="taskbar-volume">🔊</span>
+                <span class="tray-icon" id="taskbar-wifi">📶</span>
+                <span class="tray-icon" id="taskbar-battery">🔋</span>
             </div>
             <div class="clock" id="clock">
                 <div class="time">17:24</div>
@@ -984,21 +1010,58 @@
 
     <!-- Desktop Context Menu -->
     <div id="context-menu" class="context-menu hidden">
-        <div class="context-item" id="ctx-view">
-            <span>👁️ Exibir</span>
-            <span class="arrow">▶</span>
+        <div class="context-item has-submenu" id="ctx-view">
+            <span class="ctx-icon">🗂️</span>
+            <span class="ctx-label">Exibir</span>
+            <span class="ctx-arrow">›</span>
             <div class="submenu">
-                <div class="context-item" data-action="size-large">Ícones Grandes</div>
-                <div class="context-item" data-action="size-medium">Ícones Médios</div>
-                <div class="context-item" data-action="size-small">Ícones Pequenos</div>
+                <div class="context-item" data-action="size-large">
+                    <span class="ctx-icon">🔲</span>
+                    <span class="ctx-label">Ícones grandes</span>
+                    <span class="ctx-shortcut">Ctrl+Shift+2</span>
+                </div>
+                <div class="context-item" data-action="size-medium">
+                    <span class="ctx-icon">🔳</span>
+                    <span class="ctx-label">Ícones médios</span>
+                    <span class="ctx-shortcut">Ctrl+Shift+3</span>
+                </div>
+                <div class="context-item active-option" data-action="size-small">
+                    <span class="ctx-icon">▫️</span>
+                    <span class="ctx-label">Ícones pequenos</span>
+                    <span class="ctx-shortcut">Ctrl+Shift+4</span>
+                </div>
             </div>
         </div>
+        <div class="context-item has-submenu">
+            <span class="ctx-icon">↕️</span>
+            <span class="ctx-label">Classificar por</span>
+            <span class="ctx-arrow">›</span>
+            <div class="submenu">
+                <div class="context-item" data-action="sort-name">
+                    <span class="ctx-label">Nome</span>
+                </div>
+                <div class="context-item" data-action="sort-size">
+                    <span class="ctx-label">Tamanho</span>
+                </div>
+                <div class="context-item" data-action="sort-type">
+                    <span class="ctx-label">Tipo</span>
+                </div>
+            </div>
+        </div>
+        <div class="context-item" data-action="refresh">
+            <span class="ctx-icon">🔄</span>
+            <span class="ctx-label">Atualizar</span>
+        </div>
         <div class="context-separator"></div>
-        <div class="context-item" data-action="refresh">🔄 Atualizar</div>
-        <div class="context-separator"></div>
-        <div class="context-item" data-action="personalize">🎨 Personalizar</div>
+        <div class="context-item" data-action="personalize">
+            <span class="ctx-icon">🎨</span>
+            <span class="ctx-label">Personalizar</span>
+        </div>
         <div class="context-separator hidden" id="ctx-sep-delete"></div>
-        <div class="context-item hidden" id="ctx-delete" data-action="delete-app">🗑️ Excluir</div>
+        <div class="context-item hidden" id="ctx-delete" data-action="delete-app">
+            <span class="ctx-icon">🗑️</span>
+            <span class="ctx-label">Excluir</span>
+        </div>
     </div>
 
     <!-- Selection Box -->

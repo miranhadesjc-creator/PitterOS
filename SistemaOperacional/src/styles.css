@@ -210,16 +210,53 @@ body {
     align-items: center;
     justify-content: flex-start;
     width: 80px;
-    /* Reduzido de 96px */
     height: auto;
     min-height: 70px;
     padding: 6px;
     border-radius: 4px;
     cursor: default;
     text-align: center;
-    transition: background 0.1s;
+    transition: all 0.2s ease;
     border: 1px solid transparent;
     margin-bottom: 2px;
+}
+
+/* Tamanhos de ícones */
+.icons-small .desktop-icon {
+    width: 70px;
+    min-height: 60px;
+}
+
+.icons-small .desktop-icon .icon-img {
+    font-size: 28px;
+    height: 28px;
+}
+
+.icons-small .desktop-icon span {
+    font-size: 11px;
+}
+
+.icons-medium .desktop-icon {
+    width: 80px;
+}
+
+.icons-medium .desktop-icon .icon-img {
+    font-size: 36px;
+    height: 36px;
+}
+
+.icons-large .desktop-icon {
+    width: 100px;
+    min-height: 90px;
+}
+
+.icons-large .desktop-icon .icon-img {
+    font-size: 48px;
+    height: 48px;
+}
+
+.icons-large .desktop-icon span {
+    font-size: 14px;
 }
 
 .desktop-icon:hover {
@@ -233,13 +270,49 @@ body {
 
 .desktop-icon .icon-img {
     font-size: 36px;
-    /* Reduzido de 48px */
     margin-bottom: 4px;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.desktop-icon .icon-img img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.icons-small .desktop-icon .icon-img {
+    font-size: 28px;
+    height: 28px;
+}
+
+.icons-small .desktop-icon .icon-img img {
+    width: 28px;
+    height: 28px;
+}
+
+.icons-medium .desktop-icon .icon-img {
+    font-size: 36px;
+    height: 36px;
+}
+
+.icons-medium .desktop-icon .icon-img img {
+    width: 36px;
+    height: 36px;
+}
+
+.icons-large .desktop-icon .icon-img {
+    font-size: 48px;
+    height: 48px;
+}
+
+.icons-large .desktop-icon .icon-img img {
+    width: 48px;
+    height: 48px;
 }
 
 .desktop-icon span {
@@ -2325,4 +2398,552 @@ body.dark-mode .desktop-clock {
 
 .launcher-app-item:nth-child(n+9) {
     animation-delay: 0.45s;
+}
+
+/* ============================================
+   BATTERY INDICATOR
+   ============================================ */
+#top-bar-battery {
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.battery-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.battery-indicator:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Cores baseadas no nível de bateria */
+.battery-good {
+    color: #4ade80;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+}
+
+.battery-medium {
+    color: #fbbf24;
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+
+.battery-low {
+    color: #ef4444;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    animation: batteryPulse 1.5s ease-in-out infinite;
+}
+
+.battery-unknown {
+    color: #9ca3af;
+}
+
+/* Animação quando carregando */
+#top-bar-battery.charging .battery-indicator {
+    animation: chargingGlow 2s ease-in-out infinite;
+}
+
+@keyframes chargingGlow {
+
+    0%,
+    100% {
+        text-shadow: 0 0 4px rgba(74, 222, 128, 0.3);
+    }
+
+    50% {
+        text-shadow: 0 0 12px rgba(74, 222, 128, 0.8), 0 0 20px rgba(74, 222, 128, 0.4);
+    }
+}
+
+@keyframes batteryPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ============================================
+   WIFI INDICATOR
+   ============================================ */
+#top-bar-wifi {
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.wifi-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.wifi-indicator:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Cores baseadas na qualidade do sinal */
+.wifi-excellent {
+    color: #22c55e;
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.wifi-good {
+    color: #4ade80;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+}
+
+.wifi-medium {
+    color: #fbbf24;
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+
+.wifi-weak {
+    color: #f97316;
+    text-shadow: 0 0 8px rgba(249, 115, 22, 0.4);
+    animation: wifiPulse 2s ease-in-out infinite;
+}
+
+.wifi-very-weak {
+    color: #ef4444;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    animation: wifiPulse 1.5s ease-in-out infinite;
+}
+
+.wifi-offline {
+    color: #6b7280;
+    text-shadow: none;
+}
+
+/* Animação quando offline */
+#top-bar-wifi.offline .wifi-indicator {
+    animation: offlineBlink 2s ease-in-out infinite;
+}
+
+@keyframes wifiPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+}
+
+@keyframes offlineBlink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+/* ============================================
+   SELECTION BOX (Estilo Windows)
+   ============================================ */
+.selection-box {
+    position: fixed;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Evitar arraste de ícones */
+.desktop-icon {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.desktop-icon img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Ícones selecionados */
+.desktop-icon.selected {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 4px;
+}
+
+.desktop-icon.selected .icon-img {
+    transform: scale(1.02);
+}
+
+.desktop-icon.selected span {
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* ============================================
+   WIFI NETWORKS PANEL
+   ============================================ */
+.wifi-panel {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 320px;
+    max-height: 400px;
+    background: rgba(30, 30, 46, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    z-index: 10000;
+    overflow: hidden;
+    animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.wifi-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.wifi-panel-close {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: color 0.2s;
+}
+
+.wifi-panel-close:hover {
+    color: #fff;
+}
+
+.wifi-networks-list {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.wifi-network-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    color: #fff;
+}
+
+.wifi-network-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.wifi-network-item.connected {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.wifi-network-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wifi-network-info {
+    flex: 1;
+}
+
+.wifi-network-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.wifi-network-status {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.wifi-network-signal {
+    color: #4ade80;
+    font-size: 12px;
+}
+
+.wifi-network-item.connected .wifi-network-status {
+    color: #4ade80;
+}
+
+/* ============================================
+   CONTEXT MENU (Estilo Windows 11)
+   ============================================ */
+.context-menu {
+    position: fixed;
+    min-width: 220px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    z-index: 20000;
+    padding: 4px;
+    font-size: 13px;
+}
+
+body.dark-mode .context-menu {
+    background: rgba(40, 40, 50, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.context-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #333;
+    position: relative;
+    transition: background 0.1s;
+}
+
+body.dark-mode .context-item {
+    color: #eee;
+}
+
+.context-item:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+body.dark-mode .context-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ctx-icon {
+    width: 18px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.ctx-label {
+    flex: 1;
+}
+
+.ctx-arrow {
+    color: #888;
+    font-size: 12px;
+}
+
+.ctx-shortcut {
+    color: #888;
+    font-size: 11px;
+    margin-left: auto;
+}
+
+.context-separator {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 4px 8px;
+}
+
+body.dark-mode .context-separator {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Submenu */
+.context-item.has-submenu>.submenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    min-width: 200px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    padding: 4px;
+    margin-left: 2px;
+}
+
+body.dark-mode .context-item.has-submenu>.submenu {
+    background: rgba(40, 40, 50, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.context-item.has-submenu:hover>.submenu {
+    display: block;
+}
+
+/* Indicador de opção ativa */
+.context-item.active-option::before {
+    content: '•';
+    position: absolute;
+    left: 10px;
+    color: #333;
+    font-weight: bold;
+}
+
+body.dark-mode .context-item.active-option::before {
+    color: #fff;
+}
+
+/* WiFi Password Modal */
+.wifi-password-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    background: rgba(30, 30, 46, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    z-index: 30000;
+    padding: 20px;
+    color: #fff;
+}
+
+.wifi-password-modal h3 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.wifi-password-modal input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.wifi-password-modal input:focus {
+    outline: none;
+    border-color: #4ade80;
+}
+
+.wifi-password-modal .btn-group {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.wifi-password-modal button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.wifi-password-modal .btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.wifi-password-modal .btn-connect {
+    background: #4ade80;
+    color: #000;
+    font-weight: 500;
+}
+
+.wifi-panel-footer {
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#wifi-scan-btn {
+    width: 100%;
+    padding: 8px;
+    background: #4ade80;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+#wifi-scan-btn:active {
+    transform: scale(0.98);
+}
+
+.wifi-add-manual {
+    display: flex;
+    gap: 4px;
+}
+
+#wifi-new-name {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+#wifi-add-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
 }

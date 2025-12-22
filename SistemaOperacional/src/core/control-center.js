@@ -77,6 +77,27 @@ export class ControlCenter {
     toggleAction(action) {
         if (this.state.hasOwnProperty(action)) {
             this.state[action] = !this.state[action];
+
+            // Se ativar modo avião, desliga WiFi e Bluetooth
+            if (action === 'airplane' && this.state.airplane) {
+                this.state.wifi = false;
+                this.state.bluetooth = false;
+                // Dispara evento global para notificar outros módulos
+                window.dispatchEvent(new CustomEvent('airplaneMode', { detail: { enabled: true } }));
+            }
+
+            // Se desativar modo avião, religa WiFi
+            if (action === 'airplane' && !this.state.airplane) {
+                this.state.wifi = true;
+                window.dispatchEvent(new CustomEvent('airplaneMode', { detail: { enabled: false } }));
+            }
+
+            // Se tentar ligar WiFi com modo avião ativo, desativa modo avião
+            if (action === 'wifi' && this.state.wifi && this.state.airplane) {
+                this.state.airplane = false;
+                window.dispatchEvent(new CustomEvent('airplaneMode', { detail: { enabled: false } }));
+            }
+
             this.render();
         }
     }
