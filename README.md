@@ -43,6 +43,5 @@ Principais objetivos:
 ## 🚀 Como Executar (Emulador)
 
 ```bash
-# Exemplo genérico
-make
-qemu-system-x86_64 pitteros.iso
+- Baixe e Instale o Antigravity da Google
+- E no Terminal digite "npm install && npm run dev"
