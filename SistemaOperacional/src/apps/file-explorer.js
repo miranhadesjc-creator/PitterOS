@@ -10,14 +10,21 @@ export class FileExplorerApp {
         this.init();
     }
 
-    init() {
+    async init() {
         this.setupNavigation();
         this.setupItems();
+
+        // Obter caminhos reais do sistema
+        if (window.require) {
+            const { ipcRenderer } = window.require('electron');
+            this.systemPaths = await ipcRenderer.invoke('get-system-paths');
+        }
+
         this.navigate(this.currentPath);
 
         // Ouvir novos downloads
         window.addEventListener('pitter-download-added', () => {
-            if (this.currentPath === '/home/jean/Downloads') {
+            if (this.currentPath && this.currentPath.includes('Downloads')) {
                 this.navigate(this.currentPath);
             }
         });
@@ -32,10 +39,15 @@ export class FileExplorerApp {
                 const name = item.innerText.substring(2).trim();
                 let targetPath = '/home/jean';
 
-                if (name === 'Downloads' || name === 'Transferências') targetPath = '/mnt/c/Users/Jean Pitter/Downloads';
-                if (name === 'Este Computador' || name === 'Início') targetPath = '/mnt/c/Users/Jean Pitter';
-                if (name === 'Documentos') targetPath = '/mnt/c/Users/Jean Pitter/Documents';
-                if (name === 'Imagens') targetPath = '/mnt/c/Users/Jean Pitter/Pictures';
+                const toWsl = (winPath) => {
+                    if (!winPath) return '/';
+                    return winPath.replace(/^[a-zA-Z]:/, (match) => `/mnt/${match[0].toLowerCase()}`).replace(/\\/g, '/');
+                };
+
+                if (name === 'Downloads' || name === 'Transferências') targetPath = toWsl(this.systemPaths?.downloads);
+                if (name === 'Este Computador' || name === 'Início') targetPath = toWsl(this.systemPaths?.home);
+                if (name === 'Documentos') targetPath = toWsl(this.systemPaths?.documents);
+                if (name === 'Imagens') targetPath = toWsl(this.systemPaths?.pictures);
                 if (name === 'Sistema') targetPath = '/';
                 if (name === 'Disco Local (C:)') targetPath = '/mnt/c';
 

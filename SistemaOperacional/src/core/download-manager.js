@@ -59,78 +59,37 @@ export class DownloadManager {
         localStorage.setItem(this.storageKey, JSON.stringify(this.downloads));
     }
 
-    /**
-     * Baixa um arquivo de uma URL e salva no sistema local (usando Tauri).
-     * @param {string} url - URL do arquivo a ser baixado.
-     * @param {string} suggestedName - Nome sugerido para o arquivo.
-     */
-    async downloadFileToLocal(url, suggestedName = 'download') {
-        if (!window.__TAURI__) {
-            alert('Download nativo só funciona no Tauri!');
-            return;
-        }
-
-        const { save } = window.__TAURI__.dialog;
-        const { writeBinaryFile } = window.__TAURI__.fs;
-        const { fetch: tauriFetch } = window.__TAURI__.http;
-
-        try {
-            // 1. Abre o diálogo "Salvar Como"
-            const filePath = await save({
-                defaultPath: suggestedName,
-                filters: [{
-                    name: 'Todos os Arquivos',
-                    extensions: ['*']
-                }]
-            });
-
-            if (!filePath) {
-                console.log('Download cancelado pelo usuário.');
-                return;
-            }
-
-            // 2. Faz o download do arquivo
-            const response = await tauriFetch(url, {
-                method: 'GET',
-                responseType: 2 // Binary
-            });
-
-            if (!response.ok) {
-                throw new Error(`Falha ao baixar: ${response.status}`);
-            }
-
-            // 3. Escreve o arquivo no disco
-            await writeBinaryFile(filePath, response.data);
-
-            alert(`✅ Download concluído!\nSalvo em: ${filePath}`);
-            this.addDownload({ name: suggestedName, size: 'N/A', type: 'file' });
-
-        } catch (error) {
-            console.error('Erro no download:', error);
-            alert(`❌ Erro ao baixar arquivo:\n${error.message}`);
+    async loadDownloadsFromSystem() {
+        if (window.require) {
+            const { ipcRenderer } = window.require('electron');
+            const files = await ipcRenderer.invoke('list-virtual-downloads');
+            this.downloads = files.map((f, i) => ({ id: i, ...f, type: 'file' }));
+            this.save();
         }
     }
 
     /**
-     * Baixa o conteúdo da barra de endereços como arquivo.
-     * @param {string} addressBarUrl - URL da barra de endereços.
+     * Inicia um download nativo no Windows.
      */
+    async downloadFileToLocal(url, suggestedName = 'download') {
+        // No Electron, ao mudar o src do iframe (ou webview) para um link de download, 
+        // o evento 'will-download' no main process é disparado automaticamente.
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = suggestedName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log(`Iniciando download nativo de: ${url}`);
+    }
+
     async downloadFromAddressBar(addressBarUrl) {
         if (!addressBarUrl) return;
-
-        // Extrai o nome do arquivo da URL
         const urlParts = addressBarUrl.split('/');
         let suggestedName = urlParts[urlParts.length - 1] || 'download';
-
-        // Remove query strings do nome
-        if (suggestedName.includes('?')) {
-            suggestedName = suggestedName.split('?')[0];
-        }
-
-        // Se não tiver extensão, adiciona uma genérica
-        if (!suggestedName.includes('.')) {
-            suggestedName += '.bin';
-        }
+        if (suggestedName.includes('?')) suggestedName = suggestedName.split('?')[0];
+        if (!suggestedName.includes('.')) suggestedName += '.bin';
 
         await this.downloadFileToLocal(addressBarUrl, suggestedName);
     }

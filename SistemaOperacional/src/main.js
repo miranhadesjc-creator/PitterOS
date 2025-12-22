@@ -121,6 +121,10 @@ class OperatingSystem {
             iframeId: 'chrome-iframe',
             addressBarId: 'chrome-address-bar',
             btnGoId: 'chrome-btn-go',
+            btnBackId: 'chrome-btn-back',
+            btnForwardId: 'chrome-btn-forward',
+            btnReloadId: 'chrome-btn-reload',
+            btnHomeId: 'chrome-btn-home',
             btnDownloadId: 'chrome-btn-download',
             homeUrl: 'https://www.google.com/search?igu=1'
         });
@@ -138,6 +142,36 @@ class OperatingSystem {
                         iframe.src = 'https://arthurbrando1-cell.github.io/Game-Dev-Space/';
                     }
                 }
+            });
+        }
+        // Monitor de Downloads do Electron
+        if (window.require) {
+            const { ipcRenderer } = window.require('electron');
+
+            // Quando o download começa
+            ipcRenderer.on('download-started', (event, data) => {
+                // 1. Abre a janela do Explorador
+                windowManager.open('file-explorer');
+
+                // 2. Converte o caminho do Windows para o formato que o WSL entende
+                const toWsl = (winPath) => {
+                    if (!winPath) return '/';
+                    return winPath.replace(/^[a-zA-Z]:/, (match) => `/mnt/${match[0].toLowerCase()}`).replace(/\\/g, '/');
+                };
+
+                const wslPath = toWsl(data.path);
+
+                // 3. Navega o explorador para a pasta de Downloads
+                if (this.apps.fileExplorer) {
+                    this.apps.fileExplorer.navigate(wslPath);
+                }
+            });
+
+            ipcRenderer.on('download-completed', (event, fileName) => {
+                // Notificação simples no sistema
+                alert(`📂 Download Concluído: ${fileName}\n\nO arquivo já está disponível na sua pasta de Downloads.`);
+                // Atualiza o explorador se necessário
+                window.dispatchEvent(new CustomEvent('pitter-download-added'));
             });
         }
     }

@@ -54,6 +54,9 @@ export class ControlCenter {
                 if (type === 'brightness') {
                     document.body.style.filter = `brightness(${this.state.brightness}%)`;
                 }
+                if (type === 'volume') {
+                    window.dispatchEvent(new CustomEvent('volumeChange', { detail: { volume: this.state.volume } }));
+                }
             });
         });
     }

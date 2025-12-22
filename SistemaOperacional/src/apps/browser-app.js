@@ -131,6 +131,52 @@ export class BrowserApp {
                 this.handleAddressBar();
             }
         });
+
+        // Webview Events (Sync Address Bar)
+        if (this.iframe) {
+            this.iframe.addEventListener('did-navigate', (e) => {
+                this.addressBar.value = e.url;
+            });
+            this.iframe.addEventListener('did-navigate-in-page', (e) => {
+                this.addressBar.value = e.url;
+            });
+            this.iframe.addEventListener('dom-ready', () => {
+                // Re-aplica o volume quando a página carrega
+                if (window.os?.controlCenter) {
+                    this.applyVolume(window.os.controlCenter.state.volume);
+                }
+            });
+        }
+
+        // Global Volume Listener
+        window.addEventListener('volumeChange', (e) => {
+            this.applyVolume(e.detail.volume);
+        });
+    }
+
+    applyVolume(volume) {
+        if (!this.iframe) return;
+        const vol = volume / 100;
+
+        // Injeta script para controlar volume de vídeos/áudios no webview
+        const code = `
+            (function() {
+                const elements = document.querySelectorAll('video, audio');
+                elements.forEach(el => {
+                    el.volume = ${vol};
+                    el.muted = ${vol === 0};
+                });
+            })();
+        `;
+
+        if (this.iframe.executeJavaScript) {
+            this.iframe.executeJavaScript(code);
+        }
+
+        // Muta o webview inteiro se o volume for 0
+        if (this.iframe.setAudioMuted) {
+            this.iframe.setAudioMuted(vol === 0);
+        }
     }
 
     handleAddressBar() {
