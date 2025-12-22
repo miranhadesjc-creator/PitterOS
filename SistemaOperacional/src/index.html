@@ -641,11 +641,11 @@
                 <div id="system-info" class="system-details">
                     <div class="info-row">
                         <span class="label">Versão:</span>
-                        <span class="value">0.1.0</span>
+                        <span class="value">1.6.0</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Kernel:</span>
-                        <span class="value">Tauri/Rust</span>
+                        <span class="value">Ubuntu</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Status:</span>
@@ -973,6 +973,26 @@
             <div id="lock-error-msg" class="lock-error hidden">Senha incorreta</div>
         </div>
     </div>
+
+    <!-- Desktop Context Menu -->
+    <div id="context-menu" class="context-menu hidden">
+        <div class="context-item" id="ctx-view">
+            <span>👁️ Exibir</span>
+            <span class="arrow">▶</span>
+            <div class="submenu">
+                <div class="context-item" data-action="size-large">Ícones Grandes</div>
+                <div class="context-item" data-action="size-medium">Ícones Médios</div>
+                <div class="context-item" data-action="size-small">Ícones Pequenos</div>
+            </div>
+        </div>
+        <div class="context-separator"></div>
+        <div class="context-item" data-action="refresh">🔄 Atualizar</div>
+        <div class="context-separator"></div>
+        <div class="context-item" data-action="personalize">🎨 Personalizar</div>
+    </div>
+
+    <!-- Selection Box -->
+    <div id="selection-box" class="selection-box hidden"></div>
 
     <!-- Desktop Context Menu -->
     <div id="context-menu" class="context-menu hidden">

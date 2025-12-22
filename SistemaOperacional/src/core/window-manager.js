@@ -104,10 +104,15 @@ export class WindowManager {
 
         this.isDragging = true;
         this.activeWindow = windowId;
+        this.lastDragX = e.clientX; // Track X for velocity
         this.dragOffset = {
             x: e.clientX - win.element.offsetLeft,
             y: e.clientY - win.element.offsetTop
         };
+
+        // Remove transition specifically for transform/movement during drag to avoid lag
+        win.element.style.transition = 'none';
+
         this.focus(windowId);
     }
 
@@ -125,12 +130,38 @@ export class WindowManager {
             const win = this.windows.get(this.activeWindow);
             if (!win) return;
 
+            const currentX = e.clientX;
+            const deltaX = currentX - this.lastDragX;
+            this.lastDragX = currentX;
+
+            // Apply Jelly Effect (Skew based on velocity)
+            const maxSkew = 15;
+            // Velocity factor: higher value = more wobble
+            let skew = deltaX * -0.8;
+            // Clamp skew
+            skew = Math.max(Math.min(skew, maxSkew), -maxSkew);
+
             win.element.style.left = (e.clientX - this.dragOffset.x) + 'px';
             win.element.style.top = (e.clientY - this.dragOffset.y) + 'px';
+            win.element.style.transform = `skewX(${skew}deg)`;
+
             this.notifyUpdate();
         });
 
         document.addEventListener('mouseup', () => {
+            if (this.isDragging && this.activeWindow) {
+                const win = this.windows.get(this.activeWindow);
+                if (win) {
+                    // Snap back effect
+                    win.element.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s'; // Elastic bounce
+                    win.element.style.transform = 'skewX(0deg)';
+
+                    // Restore original transition after bounce
+                    setTimeout(() => {
+                        win.element.style.transition = '';
+                    }, 500);
+                }
+            }
             this.isDragging = false;
             this.isResizing = false;
             document.body.style.cursor = 'default';
