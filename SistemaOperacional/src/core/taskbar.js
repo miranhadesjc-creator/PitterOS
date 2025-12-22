@@ -173,10 +173,23 @@ export class Taskbar {
     updateActiveApps() {
         document.querySelectorAll('.taskbar-app').forEach(btn => {
             const appId = btn.dataset.app;
-            if (this.windowManager.isVisible(appId) && this.windowManager.isActive(appId)) {
+            if (!appId) return;
+
+            const isVisible = this.windowManager.isVisible(appId);
+            const isActive = this.windowManager.isActive(appId);
+
+            // 'active' significa que o app está aberto (janela existe e não está oculta)
+            if (isVisible) {
                 btn.classList.add('active');
             } else {
                 btn.classList.remove('active');
+            }
+
+            // 'focused' para a janela que está por cima de tudo
+            if (isActive) {
+                btn.classList.add('focused');
+            } else {
+                btn.classList.remove('focused');
             }
         });
     }

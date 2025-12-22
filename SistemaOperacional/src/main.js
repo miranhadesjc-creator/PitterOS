@@ -45,7 +45,7 @@ class OperatingSystem {
             { id: 'file-explorer', name: 'Arquivos', icon: '📁' },
             { id: 'system-info', name: 'Sistema', icon: 'ℹ️' },
             { id: 'games', name: 'Games', icon: '🎮' },
-            { id: 'google', name: 'Google', icon: '<img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" style="width: 48px; height: 48px; object-fit: contain;">' },
+            { id: 'chrome', name: 'Google', icon: '<img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" style="width: 48px; height: 48px; object-fit: contain;">' },
             { id: 'game-hub', name: 'Game Hub', icon: '<img src="assets/game_hub_icon.png" style="width: 48px; height: 48px; object-fit: contain;">' }
         ];
     }

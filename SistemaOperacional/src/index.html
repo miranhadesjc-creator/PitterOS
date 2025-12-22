@@ -72,6 +72,13 @@
             </div>
             <span>Game Hub</span>
         </div>
+        <div class="desktop-icon" data-app="chrome">
+            <div class="icon-img chrome-icon">
+                <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
+                    alt="Google">
+            </div>
+            <span>Google Chrome</span>
+        </div>
 
         <!-- Windows -->
 
@@ -324,7 +331,7 @@
         </div>
 
         <!-- Window: Game Hub -->
-        <div class="window hidden" id="window-game-hub" style="top: 50px; left: 100px; width: 1000px; height: 750px;">
+        <div class="window hidden" id="window-game-hub" style="top: 50px; left: 100px; width: 1000px; height: 650px;">
             <div class="window-header" style="background: #1a1a2e; color: white;">
                 <div class="window-title">
                     <img src="assets/game_hub_icon.png" alt="GH" style="width: 16px; height: 16px; margin-right: 8px;">
@@ -372,7 +379,7 @@
                         <span>📥</span> Baixar
                     </button>
                 </div>
-                <iframe id="chrome-iframe" src="about:blank"></iframe>
+                <webview id="chrome-iframe" src="https://www.google.com" style="flex: 1; border: none;"></webview>
             </div>
         </div>
 
@@ -737,6 +744,13 @@
             </button>
             <div class="taskbar-divider"></div>
             <button class="taskbar-app" data-app="file-explorer">📁</button>
+            <button class="taskbar-app" data-app="chrome" title="Google Chrome">
+                <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
+                    style="width: 32px; height: 32px; object-fit: contain;">
+            </button>
+            <button class="taskbar-app" data-app="game-hub" title="Game Hub">
+                <img src="assets/game_hub_icon.png" style="width: 32px; height: 32px; object-fit: contain;">
+            </button>
             <button class="taskbar-app active" data-app="task-manager">⚙️</button>
             <button class="taskbar-app" data-app="terminal">💻</button>
         </div>

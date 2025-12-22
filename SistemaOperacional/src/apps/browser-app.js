@@ -29,7 +29,7 @@ export class BrowserApp {
         if (this.isNative && window.__TAURI__) {
             this.setupPortal();
         } else {
-            this.navigate(this.homeUrl);
+            this.navigate(this.iframe.src || this.homeUrl);
         }
     }
 
@@ -154,34 +154,48 @@ export class BrowserApp {
     navigate(url) {
         if (!this.iframe) return;
 
-        // Iframe restriction workarounds
-        if (url.includes('youtube.com') && !url.includes('/embed/')) {
-            if (url === 'https://www.youtube.com' || url === 'https://www.youtube.com/' || url.includes('/home')) {
-                url = 'https://www.youtube.com/embed/videoseries?list=PLFgquLnL59alCl_jYYB7ypEKzG_7v60TM';
-            } else if (url.includes('watch?v=')) {
-                const videoId = url.split('v=')[1]?.split('&')[0];
-                if (videoId) url = `https://www.youtube.com/embed/${videoId}`;
+        // Smart fix for URL
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            if (url.includes('.') && !url.includes(' ')) {
+                url = 'https://' + url;
+            } else {
+                url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
             }
         }
 
-        if (url.includes('google.com') && !url.includes('igu=1')) {
-            url += (url.includes('?') ? '&' : '?') + 'igu=1';
+        this.addressBar.value = url;
+
+        // No Electron, webview pode precisar de um reset no src se estiver travado
+        if (this.iframe.src === url) {
+            this.reload();
+        } else {
+            this.iframe.src = url;
         }
 
-        this.addressBar.value = url;
-        this.iframe.src = url;
+        // Forçar visibilidade
+        this.iframe.style.display = 'flex';
     }
 
     reload() {
-        if (this.iframe) this.iframe.contentWindow.location.reload();
+        if (this.iframe) {
+            if (typeof this.iframe.reload === 'function') {
+                this.iframe.reload();
+            } else {
+                this.iframe.src = this.iframe.src;
+            }
+        }
     }
 
     goBack() {
-        if (this.iframe) this.iframe.contentWindow.history.back();
+        if (this.iframe && typeof this.iframe.goBack === 'function') {
+            this.iframe.goBack();
+        }
     }
 
     goForward() {
-        if (this.iframe) this.iframe.contentWindow.history.forward();
+        if (this.iframe && typeof this.iframe.goForward === 'function') {
+            this.iframe.goForward();
+        }
     }
 
     goHome() {
