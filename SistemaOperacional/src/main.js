@@ -92,7 +92,7 @@ class OperatingSystem {
             'file-explorer',
             'settings',
             'games',
-            'google',
+            'chrome',
             'game-hub'
         ];
 
@@ -115,16 +115,16 @@ class OperatingSystem {
         this.apps.games = new GamesApp(windowManager);
         this.apps.games.init();
 
-        // Google Search
-        this.apps.google = new BrowserApp(windowManager, {
-            windowId: 'window-google',
-            iframeId: 'google-iframe',
-            addressBarId: 'google-address-bar',
-            btnGoId: 'google-btn-go',
-            btnDownloadId: 'google-btn-download',
+        // Google Chrome
+        this.apps.chrome = new BrowserApp(windowManager, {
+            windowId: 'window-chrome',
+            iframeId: 'chrome-iframe',
+            addressBarId: 'chrome-address-bar',
+            btnGoId: 'chrome-btn-go',
+            btnDownloadId: 'chrome-btn-download',
             homeUrl: 'https://www.google.com/search?igu=1'
         });
-        this.apps.google.init();
+        this.apps.chrome.init();
 
         // Game Hub Shortcut (Dedicated Window)
         const gdsIcon = document.querySelector('.desktop-icon[data-app="game-hub"]');

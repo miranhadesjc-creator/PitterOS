@@ -8,7 +8,7 @@ export class WindowManager {
         this.activeWindow = null;
         this.isDragging = false;
         this.dragOffset = { x: 0, y: 0 };
-        this.zIndex = 10000;
+        this.zIndex = 1000;
 
         // Estado de redimensionamento
         this.isResizing = false;
@@ -211,6 +211,7 @@ export class WindowManager {
 
         this.windows.forEach((w, id) => {
             w.element.classList.remove('active');
+            // Mantém no nível base para janelas (acima da taskbar que está em 99)
             w.element.style.zIndex = Math.max(100, parseInt(w.element.style.zIndex || 100));
         });
 

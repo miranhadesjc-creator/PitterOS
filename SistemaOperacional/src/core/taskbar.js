@@ -25,7 +25,7 @@ export class Taskbar {
 
         // Dados dos Apps (Fonte da verdade para busca)
         this.appList = [
-            { id: 'google', name: 'Google', icon: '🔍' },
+            { id: 'chrome', name: 'Google Chrome', icon: '🌐' },
             { id: 'settings', name: 'Configurações', icon: '⚙️' },
             { id: 'task-manager', name: 'Gerenciador de Tarefas', icon: '📊' },
             { id: 'terminal', name: 'Terminal', icon: '💻' },

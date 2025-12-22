@@ -331,9 +331,9 @@
                     Game Hub
                 </div>
                 <div class="window-controls">
-                    <button class="win-btn minimize" style="color: white;">─</button>
-                    <button class="win-btn maximize" style="color: white;">☐</button>
-                    <button class="win-btn close" style="color: white;">✕</button>
+                    <button class="win-btn minimize" style="color: white;" title="Minimizar">─</button>
+                    <button class="win-btn maximize" style="color: white;" title="Maximizar">☐</button>
+                    <button class="win-btn close" style="color: white;" title="Fechar">✕</button>
                 </div>
             </div>
             <div class="window-content browser-content" style="padding: 0; background: #000;">
@@ -435,33 +435,6 @@
             </div>
         </div>
 
-        <!-- Window: Google Search -->
-        <div class="window hidden" id="window-google" style="top: 70px; left: 100px; width: 800px; height: 600px;">
-            <div class="window-header">
-                <div class="window-title">
-                    <span class="window-icon">🔍</span>
-                    Google
-                </div>
-                <div class="window-controls">
-                    <button class="win-btn minimize">─</button>
-                    <button class="win-btn maximize">☐</button>
-                    <button class="win-btn close">✕</button>
-                </div>
-            </div>
-            <div class="window-content browser-content">
-                <div class="browser-toolbar">
-                    <div class="browser-address">
-                        <input type="text" id="google-address-bar" placeholder="Pesquisar no Google">
-                        <button id="google-btn-go">Pesquisar</button>
-                    </div>
-                    <button class="win-button" id="google-btn-download" title="Simular Download"
-                        style="margin-left: 8px;">
-                        <span>📥</span> Baixar
-                    </button>
-                </div>
-                <iframe id="google-iframe" src="about:blank"></iframe>
-            </div>
-        </div>
 
         <!-- Window: Ubuntu VM -->
         <div class="window hidden" id="window-ubuntu-vm" style="top: 50px; left: 150px; width: 900px; height: 600px;">

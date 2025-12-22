@@ -360,6 +360,23 @@ body {
     z-index: 10001;
 }
 
+.window.closing {
+    animation: windowClose 0.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    pointer-events: none;
+}
+
+@keyframes windowClose {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
 .window-header {
     display: flex;
     align-items: center;
@@ -790,7 +807,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 0 16px;
-    z-index: 99;
+    z-index: 10;
     border-radius: 16px;
     /* More rounded for floating effect */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -805,7 +822,7 @@ body {
     right: 0;
     height: 32px;
     background: var(--ubuntu-topbar);
-    z-index: 6000;
+    z-index: 9000;
     display: flex;
     align-items: center;
     justify-content: space-between;
