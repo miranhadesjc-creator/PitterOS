@@ -134,14 +134,7 @@ class OperatingSystem {
         const gdsIcon = document.querySelector('.desktop-icon[data-app="game-hub"]');
         if (gdsIcon) {
             gdsIcon.addEventListener('dblclick', () => {
-                const win = document.getElementById('window-game-hub');
-                const iframe = document.getElementById('game-hub-iframe');
-                if (win && iframe) {
-                    windowManager.open('game-hub');
-                    if (iframe.src === 'about:blank' || iframe.src === '') {
-                        iframe.src = 'https://arthurbrando1-cell.github.io/Game-Dev-Space/';
-                    }
-                }
+                windowManager.open('game-hub');
             });
         }
         // Monitor de Downloads do Electron
@@ -284,113 +277,6 @@ class OperatingSystem {
             if (!isDragging) return;
             isDragging = false;
         });
-    }
-
-    // ===========================================
-    // DESKTOP INTERACTIVITY (Context Menu & Selection)
-    // ===========================================
-    initDesktopInteractions() {
-        const desktop = document.getElementById('desktop');
-        const contextMenu = document.getElementById('context-menu');
-        const selectionBox = document.getElementById('selection-box');
-
-        let startX, startY;
-        let isSelecting = false;
-
-        // Load Icon Size
-        const savedSize = localStorage.getItem('desktop_icon_size') || 'icons-medium';
-        if (desktop) {
-            desktop.classList.remove('icons-small', 'icons-medium', 'icons-large');
-            desktop.classList.add(savedSize);
-
-            // --- CONTEXT MENU ---
-            desktop.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                // Hide if clicking on existing window or non-desktop elements
-                if (e.target.closest('.window') || e.target.closest('.taskbar')) return;
-
-                const x = e.clientX;
-                const y = e.clientY;
-
-                if (contextMenu) {
-                    contextMenu.style.left = `${x}px`;
-                    contextMenu.style.top = `${y}px`;
-                    contextMenu.classList.remove('hidden');
-                }
-            });
-
-            // Hide menu on click or drag
-            document.addEventListener('click', () => {
-                if (contextMenu) contextMenu.classList.add('hidden');
-            });
-
-            // Menu Actions
-            if (contextMenu) {
-                contextMenu.querySelectorAll('.context-item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        const action = item.dataset.action;
-                        if (!action) return;
-
-                        if (action.startsWith('size-')) {
-                            const sizeClass = 'icons-' + action.split('-')[1]; // small, medium, large
-                            desktop.classList.remove('icons-small', 'icons-medium', 'icons-large');
-                            desktop.classList.add(sizeClass);
-                            localStorage.setItem('desktop_icon_size', sizeClass);
-                        } else if (action === 'refresh') {
-                            location.reload();
-                        } else if (action === 'personalize') {
-                            windowManager.open('settings');
-                        }
-                    });
-                });
-            }
-
-            // --- SELECTION BOX ---
-            desktop.addEventListener('mousedown', (e) => {
-                // Allow selection if clicking on desktop or its direct empty space
-                if (e.button !== 0) return;
-
-                // Allow start if target is desktop OR body (background) 
-                // AND NOT a window/taskbar/icon
-                if (e.target.closest('.window') || e.target.closest('.taskbar') || e.target.closest('.desktop-icon') || e.target.id === 'desktop-clock') return;
-
-                isSelecting = true;
-                startX = e.clientX;
-                startY = e.clientY;
-
-                if (selectionBox) {
-                    selectionBox.style.left = `${startX}px`;
-                    selectionBox.style.top = `${startY}px`;
-                    selectionBox.style.width = '0px';
-                    selectionBox.style.height = '0px';
-                    selectionBox.classList.remove('hidden');
-                }
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isSelecting || !selectionBox) return;
-
-                const currentX = e.clientX;
-                const currentY = e.clientY;
-
-                const width = Math.abs(currentX - startX);
-                const height = Math.abs(currentY - startY);
-                const left = Math.min(currentX, startX);
-                const top = Math.min(currentY, startY);
-
-                selectionBox.style.width = `${width}px`;
-                selectionBox.style.height = `${height}px`;
-                selectionBox.style.left = `${left}px`;
-                selectionBox.style.top = `${top}px`;
-            });
-
-            document.addEventListener('mouseup', () => {
-                if (isSelecting) {
-                    isSelecting = false;
-                    if (selectionBox) selectionBox.classList.add('hidden');
-                }
-            });
-        }
     }
 
     // ===========================================

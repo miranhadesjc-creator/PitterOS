@@ -141,8 +141,12 @@ export class WindowManager {
             // Clamp skew
             skew = Math.max(Math.min(skew, maxSkew), -maxSkew);
 
+            let top = (e.clientY - this.dragOffset.y);
+            // Evita que o header da janela fique escondido sob a top-bar (32px)
+            if (top < 32) top = 32;
+
             win.element.style.left = (e.clientX - this.dragOffset.x) + 'px';
-            win.element.style.top = (e.clientY - this.dragOffset.y) + 'px';
+            win.element.style.top = top + 'px';
             win.element.style.transform = `skewX(${skew}deg)`;
 
             this.notifyUpdate();
@@ -197,7 +201,11 @@ export class WindowManager {
         if (this.resizeDir.includes('n')) {
             const newH = Math.max(init.height - deltaY, minH);
             style.height = newH + 'px';
-            if (newH > minH) style.top = (init.top + deltaY) + 'px';
+            if (newH > minH) {
+                let newTop = (init.top + deltaY);
+                if (newTop < 32) newTop = 32;
+                style.top = newTop + 'px';
+            }
         }
         this.notifyUpdate();
     }
@@ -211,12 +219,17 @@ export class WindowManager {
 
         this.windows.forEach((w, id) => {
             w.element.classList.remove('active');
-            // Mantém no nível base para janelas (acima da taskbar que está em 99)
-            w.element.style.zIndex = Math.max(100, parseInt(w.element.style.zIndex || 100));
+            // Mantém no nível base para janelas
+            let currentZ = parseInt(w.element.style.zIndex || 1000);
+            w.element.style.zIndex = currentZ;
         });
 
         win.element.classList.remove('hidden');
         win.element.classList.add('active');
+
+        // Se o zIndex acumulado chegar perto das barras (20000), reseta
+        if (this.zIndex > 19000) this.zIndex = 1000;
+
         this.zIndex++;
         win.element.style.zIndex = this.zIndex;
         this.activeWindow = windowId;
@@ -268,6 +281,7 @@ export class WindowManager {
 
         if (win.isMaximized) {
             // Restaurar
+            win.element.classList.remove('maximized');
             Object.assign(win.element.style, win.originalStyles);
             win.isMaximized = false;
         } else {
@@ -279,11 +293,9 @@ export class WindowManager {
                 left: win.element.style.left,
                 borderRadius: win.element.style.borderRadius
             };
-            win.element.style.width = '100%';
-            win.element.style.height = 'calc(100vh - 48px)';
-            win.element.style.top = '0';
-            win.element.style.left = '0';
-            win.element.style.borderRadius = '0';
+
+            win.element.classList.add('maximized');
+            // O CSS da classe .maximized lidará com o resto via !important
             win.isMaximized = true;
         }
         this.notifyUpdate();
