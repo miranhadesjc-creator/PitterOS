@@ -90,6 +90,8 @@ export class BrowserApp {
         if (isWebview) {
             viewEl.setAttribute('allowpopups', '');
             viewEl.setAttribute('webpreferences', 'contextIsolation=true');
+            // Force Mobile User Agent to ensure sites adapt to small window size
+            viewEl.setAttribute('useragent', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36');
         }
 
         viewWrapper.appendChild(viewEl);
@@ -152,6 +154,44 @@ export class BrowserApp {
                 if (window.os?.controlCenter) {
                     this.applyVolumeToTab(tab, window.os.controlCenter.state.volume);
                 }
+
+                // Inject Viewport & Styles for responsiveness
+                tab.viewElement.executeJavaScript(`
+                    (function() {
+                        // 1. Inject Viewport if missing
+                        if (!document.querySelector('meta[name="viewport"]')) {
+                            const meta = document.createElement('meta');
+                            meta.name = 'viewport';
+                            meta.content = 'width=device-width, initial-scale=1.0';
+                            document.head.appendChild(meta);
+                        }
+
+                        // 2. Inject Custom Scrollbar to match OS
+                        const style = document.createElement('style');
+                        style.textContent = \`
+                            ::-webkit-scrollbar { width: 4px; height: 4px; }
+                            ::-webkit-scrollbar-track { background: #f1f1f1; }
+                            ::-webkit-scrollbar-thumb { background: #888; border-radius: 2px; border: none; }
+                            ::-webkit-scrollbar-thumb:hover { background: #555; }
+                        \`;
+                        document.head.appendChild(style);
+
+                        // 3. Enable Shift + Scroll Zoom
+                        document.addEventListener('wheel', function(e) {
+                            if (e.shiftKey) {
+                                e.preventDefault();
+                                let zoom = parseFloat(document.body.style.zoom) || 1;
+                                if (e.deltaY < 0) {
+                                    zoom += 0.1;
+                                } else {
+                                    zoom -= 0.1;
+                                }
+                                zoom = Math.min(Math.max(0.5, zoom), 3.0);
+                                document.body.style.zoom = zoom;
+                            }
+                        }, { passive: false });
+                    })();
+                `);
             });
         } else {
             // IFRAME EVENTS (Limited)

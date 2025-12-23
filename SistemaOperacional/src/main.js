@@ -66,6 +66,7 @@ class OperatingSystem {
         this.initDesktopInteractions();
         this.initHudMove();
         this.initLockScreenHandlers();
+        this.initWindowOptions();
 
         // Startup Animation
         const desktop = document.getElementById('desktop');
@@ -285,6 +286,118 @@ class OperatingSystem {
             if (!isDragging) return;
             isDragging = false;
         });
+    }
+
+    initWindowOptions() {
+        document.querySelectorAll('.win-btn.options').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const windowEl = btn.closest('.window');
+                let popup = windowEl.querySelector('.zoom-popup');
+
+                if (popup) {
+                    popup.remove();
+                    return;
+                }
+
+                // Close other popups
+                document.querySelectorAll('.zoom-popup').forEach(p => p.remove());
+
+                // Create popup
+                popup = document.createElement('div');
+                popup.className = 'zoom-popup';
+                popup.innerHTML = `
+                    <button class="zoom-out" title="Diminuir">-</button>
+                    <span class="zoom-level">100%</span>
+                    <button class="zoom-in" title="Aumentar">+</button>
+                `;
+
+                // Append to controls container for relative positioning context
+                const controls = windowEl.querySelector('.window-controls');
+                if (controls) {
+                    controls.style.position = 'relative'; // Ensure relative context
+                    controls.appendChild(popup);
+                }
+
+                // Logic
+                let currentZoom = parseFloat(windowEl.dataset.zoom) || 1;
+
+                const updateZoomUI = (val) => {
+                    popup.querySelector('.zoom-level').textContent = Math.round(val * 100) + '%';
+                };
+
+                // Initial Text
+                updateZoomUI(currentZoom);
+
+                const apply = (val) => {
+                    val = Math.max(0.2, Math.min(val, 5.0)); // Limit
+                    // Round to 1 decimal to avoid float issues
+                    val = Math.round(val * 10) / 10;
+
+                    windowEl.dataset.zoom = val;
+                    updateZoomUI(val);
+                    this.applyZoom(windowEl, val);
+                    currentZoom = val;
+                };
+
+                popup.querySelector('.zoom-out').onclick = (ev) => {
+                    ev.stopPropagation();
+                    apply(currentZoom - 0.1);
+                };
+
+                popup.querySelector('.zoom-in').onclick = (ev) => {
+                    ev.stopPropagation();
+                    apply(currentZoom + 0.1);
+                };
+
+                // Close on click outside
+                const closeHandler = () => {
+                    popup.remove();
+                    document.removeEventListener('click', closeHandler);
+                };
+                setTimeout(() => document.addEventListener('click', closeHandler), 0);
+                popup.addEventListener('click', (ev) => ev.stopPropagation());
+            });
+        });
+    }
+
+    applyZoom(windowEl, zoom) {
+        // Try to find specific content to zoom
+        const webview = windowEl.querySelector('webview');
+        const iframe = windowEl.querySelector('iframe');
+        const content = windowEl.querySelector('.window-content');
+
+        if (webview && webview.executeJavaScript) {
+            // Webview (Electron)
+            webview.executeJavaScript(`document.body.style.zoom = '${zoom}'`);
+            return;
+        }
+
+        if (iframe) {
+            // Iframe
+            try {
+                // Try direct access (Same Origin)
+                iframe.contentWindow.document.body.style.zoom = zoom;
+            } catch (e) {
+                // Cross Origin - Zoom the iframe element specifically
+                iframe.style.zoom = zoom;
+
+                // Counter-scale width/height to keep it filling the window?
+                if (zoom < 1) {
+                    iframe.style.width = (100 / zoom) + '%';
+                    iframe.style.height = (100 / zoom) + '%';
+                } else {
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                }
+            }
+            return;
+        }
+
+        // Standard App Content
+        if (content) {
+            content.style.zoom = zoom;
+        }
     }
 
     // ===========================================
