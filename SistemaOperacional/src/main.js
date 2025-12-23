@@ -288,15 +288,32 @@ class OperatingSystem {
     }
 
     // ===========================================
-    // DESKTOP INTERACTIVITY (Context Menu & Selection)
+    // DESKTOP INTERACTIVITY (Context Menu & Selection & Drag)
     // ===========================================
     initDesktopInteractions() {
         const desktop = document.getElementById('desktop');
         const contextMenu = document.getElementById('context-menu');
         const selectionBox = document.getElementById('selection-box');
 
+        // Selection Box State
         let startX, startY;
         let isSelecting = false;
+
+        // Icon Dragging State
+        let isDraggingIcon = false;
+        let draggedIcon = null;
+        let iconOffset = { x: 0, y: 0 };
+
+        // Restore Icon Positions
+        const savedPositions = JSON.parse(localStorage.getItem('icon_positions') || '{}');
+        Object.keys(savedPositions).forEach(appId => {
+            const icon = document.querySelector(`.desktop-icon[data-app="${appId}"]`);
+            if (icon) {
+                icon.style.position = 'absolute';
+                icon.style.left = savedPositions[appId].left;
+                icon.style.top = savedPositions[appId].top;
+            }
+        });
 
         // Load Icon Size
         const savedSize = localStorage.getItem('desktop_icon_size') || 'icons-medium';
@@ -418,11 +435,49 @@ class OperatingSystem {
                 });
             }
 
-            // --- SELECTION BOX ---
+            // --- SELECTION BOX & DRAG ---
             desktop.addEventListener('mousedown', (e) => {
                 if (e.button !== 0) return;
-                if (e.target.closest('.window') || e.target.closest('.taskbar') || e.target.closest('.desktop-icon') || e.target.id === 'desktop-clock' || e.target.closest('.context-menu')) return;
 
+                // Prevent interfering with other interactions
+                if (e.target.closest('.window') || e.target.closest('.taskbar') || e.target.id === 'desktop-clock' || e.target.closest('.context-menu')) return;
+
+                const clickedIcon = e.target.closest('.desktop-icon');
+
+                // ICON DRAGGING LOGIC
+                if (clickedIcon) {
+                    isDraggingIcon = true;
+                    draggedIcon = clickedIcon;
+
+                    // Deselect others unless ctrl is held (simpler behavior: just select this one)
+                    document.querySelectorAll('.desktop-icon.selected').forEach(icon => {
+                        if (icon !== draggedIcon) icon.classList.remove('selected');
+                    });
+                    draggedIcon.classList.add('selected');
+
+                    const rect = draggedIcon.getBoundingClientRect();
+                    const desktopRect = desktop.getBoundingClientRect();
+
+                    // Calculate offset relative to the icon's top-left corner
+                    iconOffset = {
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
+                    };
+
+                    // Switch to absolute positioning if not already
+                    // This allows free movement. 
+                    // Note: This removes it from the flex flow, so subsequent icons will shift.
+                    if (getComputedStyle(draggedIcon).position !== 'absolute') {
+                        draggedIcon.style.position = 'absolute';
+                        draggedIcon.style.left = (rect.left - desktopRect.left) + 'px';
+                        draggedIcon.style.top = (rect.top - desktopRect.top) + 'px';
+                    }
+
+                    draggedIcon.style.zIndex = '100'; // Bring to front while dragging
+                    return; // Stop here, don't start selection box
+                }
+
+                // SELECTION BOX LOGIC (only if not clicking an icon)
                 // Limpa seleção anterior se clicar no desktop vazio
                 document.querySelectorAll('.desktop-icon.selected').forEach(icon => {
                     icon.classList.remove('selected');
@@ -442,6 +497,24 @@ class OperatingSystem {
             });
 
             document.addEventListener('mousemove', (e) => {
+                // ICON DRAGGING
+                if (isDraggingIcon && draggedIcon) {
+                    e.preventDefault();
+                    const desktopRect = desktop.getBoundingClientRect();
+
+                    let newLeft = e.clientX - desktopRect.left - iconOffset.x;
+                    let newTop = e.clientY - desktopRect.top - iconOffset.y;
+
+                    // Basic bounds checking (optional)
+                    // newLeft = Math.max(0, Math.min(newLeft, desktopRect.width - draggedIcon.offsetWidth));
+                    // newTop = Math.max(0, Math.min(newTop, desktopRect.height - draggedIcon.offsetHeight));
+
+                    draggedIcon.style.left = newLeft + 'px';
+                    draggedIcon.style.top = newTop + 'px';
+                    return;
+                }
+
+                // SELECTION BOX
                 if (!isSelecting || !selectionBox) return;
 
                 const currentX = e.clientX;
@@ -489,6 +562,82 @@ class OperatingSystem {
             });
 
             document.addEventListener('mouseup', () => {
+                if (isDraggingIcon) {
+                    isDraggingIcon = false;
+                    if (draggedIcon) {
+                        draggedIcon.style.zIndex = ''; // Reset z-index
+
+                        // SNAP TO GRID LOGIC
+                        const getGridSize = () => {
+                            if (desktop.classList.contains('icons-small')) return { w: 80, h: 80 };
+                            if (desktop.classList.contains('icons-large')) return { w: 110, h: 120 };
+                            return { w: 90, h: 100 }; // Medium
+                        };
+
+                        const grid = getGridSize();
+                        const padding = 10; // Desktop padding
+
+                        // Get raw position
+                        let rawLeft = parseFloat(draggedIcon.style.left);
+                        let rawTop = parseFloat(draggedIcon.style.top);
+
+                        // Calculate nearest grid slot
+                        let col = Math.round((rawLeft - padding) / grid.w);
+                        let row = Math.round((rawTop - padding) / grid.h);
+
+                        // Ensure non-negative
+                        if (col < 0) col = 0;
+                        if (row < 0) row = 0;
+
+                        // Calculate snapped px
+                        let snappedLeft = (col * grid.w) + padding;
+                        let snappedTop = (row * grid.h) + padding;
+
+                        // Collision Check (Simple: Don't snap ON TOP of another, find next spot if taken)
+                        // Getting all OTHER positioned icons
+                        const otherIcons = Array.from(document.querySelectorAll('.desktop-icon:not(.hidden)')).filter(i => i !== draggedIcon && i.style.position === 'absolute');
+
+                        const isOccupied = (x, y) => {
+                            return otherIcons.some(icon => {
+                                const l = parseFloat(icon.style.left);
+                                const t = parseFloat(icon.style.top);
+                                // Allow small margin of error or exact match
+                                return Math.abs(l - x) < 5 && Math.abs(t - y) < 5;
+                            });
+                        };
+
+                        // If occupied, move to next free spot in the row, then next row
+                        // Limit attempts to avoid infinite loop
+                        let attempts = 0;
+                        while (isOccupied(snappedLeft, snappedTop) && attempts < 100) {
+                            snappedLeft += grid.w;
+                            // Wrap if too wide?
+                            if (snappedLeft + grid.w > desktop.clientWidth) { // Check if next spot would exceed desktop width
+                                snappedLeft = padding;
+                                snappedTop += grid.h;
+                            }
+                            attempts++;
+                        }
+
+                        // Apply final valid position
+                        draggedIcon.style.left = snappedLeft + 'px';
+                        draggedIcon.style.top = snappedTop + 'px';
+
+                        // SAVE POSITION LOGIC
+                        const appId = draggedIcon.dataset.app;
+                        if (appId) {
+                            const savedPositions = JSON.parse(localStorage.getItem('icon_positions') || '{}');
+                            savedPositions[appId] = {
+                                left: draggedIcon.style.left,
+                                top: draggedIcon.style.top
+                            };
+                            localStorage.setItem('icon_positions', JSON.stringify(savedPositions));
+                        }
+
+                        draggedIcon = null;
+                    }
+                }
+
                 if (isSelecting) {
                     isSelecting = false;
                     if (selectionBox) selectionBox.classList.add('hidden');
