@@ -3,7 +3,7 @@
 🚧 **Pitter OS** é um sistema operacional **em desenvolvimento**, criado com foco em aprendizado, desempenho e liberdade para experimentação em baixo nível.
 
 > ⚠️ Este projeto ainda está em fase inicial e não é recomendado para uso em ambientes de produção.
-
+> NAO É PERMITIDO A COPIAÇÃO DESTE PRODUTO
 ---
 
 ## 📌 Visão Geral
