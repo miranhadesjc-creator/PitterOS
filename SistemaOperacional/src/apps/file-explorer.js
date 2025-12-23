@@ -15,9 +15,8 @@ export class FileExplorerApp {
         this.setupItems();
 
         // Obter caminhos reais do sistema
-        if (window.require) {
-            const { ipcRenderer } = window.require('electron');
-            this.systemPaths = await ipcRenderer.invoke('get-system-paths');
+        if (window.api && typeof window.api.invoke === 'function') {
+            this.systemPaths = await window.api.invoke('get-system-paths');
         }
 
         this.navigate(this.currentPath);

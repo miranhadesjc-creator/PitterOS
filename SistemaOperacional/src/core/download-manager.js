@@ -60,9 +60,8 @@ export class DownloadManager {
     }
 
     async loadDownloadsFromSystem() {
-        if (window.require) {
-            const { ipcRenderer } = window.require('electron');
-            const files = await ipcRenderer.invoke('list-virtual-downloads');
+        if (window.api && typeof window.api.invoke === 'function') {
+            const files = await window.api.invoke('list-virtual-downloads');
             this.downloads = files.map((f, i) => ({ id: i, ...f, type: 'file' }));
             this.save();
         }

@@ -159,9 +159,8 @@ body {
 }
 
 .desktop {
-    height: calc(100vh - 32px);
-    /* Calc ignoring top bar */
-    margin-top: 32px;
+    height: 100vh;
+    margin-top: 0;
     padding: 10px 10px 80px 10px;
     /* Botton padding for floating taskbar */
     position: relative;

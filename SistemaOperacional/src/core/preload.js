@@ -1,33 +1,47 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// ============================================
-// CONTEXT BRIDGE - API Segura para o Frontend
-// ============================================
-// Expõe funcionalidades do IPC para o processo de renderização (frontend)
-// de forma segura, sem expor todo o módulo ipcRenderer.
-
 contextBridge.exposeInMainWorld('api', {
-    // Comunicação unidirecional (Renderer -> Main) e bidirecional (Renderer -> Main -> Renderer)
-    invoke: (channel, ...args) => {
-        return ipcRenderer.invoke(channel, ...args);
+    send: (channel, data) => {
+        // Canais permitidos para envio (Renderer -> Main)
+        const validChannels = [
+            'window-minimize',
+            'window-maximize',
+            'window-close'
+        ];
+        if (validChannels.includes(channel)) {
+            ipcRenderer.send(channel, data);
+        }
     },
+    on: (channel, func) => {
+        // Canais permitidos para recepção (Main -> Renderer)
+        const validChannels = [
+            'download-started',
+            'download-completed'
+        ];
+        if (validChannels.includes(channel)) {
+            // Remove listener anterior para evitar duplicação se necessário, 
+            // mas aqui só estamos expondo a função de registro.
+            // O ideal em apps reais é permitir remover listeners também.
 
-    // Comunicação unidirecional (Renderer -> Main)
-    send: (channel, ...args) => {
-        ipcRenderer.send(channel, ...args);
+            // Strip event as it includes `sender`
+            ipcRenderer.on(channel, (event, ...args) => func(...args));
+        }
     },
-
-    // Receber eventos do Main no Renderer
-    on: (channel, callback) => {
-        // Cria um listener seguro que remove o wrapper ao cancelar
-        const subscription = (event, ...args) => callback(...args);
-        ipcRenderer.on(channel, subscription);
-
-        // Retorna uma função para remover o listener, evitando memory leaks
-        return () => {
-            ipcRenderer.removeListener(channel, subscription);
-        };
+    invoke: (channel, data) => {
+        // Canais permitidos para invocação (Renderer -> Main -> Renderer)
+        const validChannels = [
+            'run-bash-command',
+            'get-system-info',
+            'create-process',
+            'list-processes',
+            'kill-process',
+            'virtual-download', // Mantido por compatibilidade
+            'get-system-paths',
+            'list-virtual-downloads',
+            'greet'
+        ];
+        if (validChannels.includes(channel)) {
+            return ipcRenderer.invoke(channel, data);
+        }
     }
 });
-
-console.log('Pitter OS - Preload script carregado com sucesso.');

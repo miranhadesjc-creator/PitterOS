@@ -137,12 +137,10 @@ class OperatingSystem {
                 windowManager.open('game-hub');
             });
         }
-        // Monitor de Downloads do Electron
-        if (window.require) {
-            const { ipcRenderer } = window.require('electron');
-
+        // Monitor de Downloads do Electron via API segura
+        if (window.api && typeof window.api.on === 'function') {
             // Quando o download começa
-            ipcRenderer.on('download-started', (event, data) => {
+            window.api.on('download-started', (data) => {
                 // 1. Abre a janela do Explorador
                 windowManager.open('file-explorer');
 
@@ -160,7 +158,7 @@ class OperatingSystem {
                 }
             });
 
-            ipcRenderer.on('download-completed', (event, fileName) => {
+            window.api.on('download-completed', (fileName) => {
                 // Notificação simples no sistema
                 alert(`📂 Download Concluído: ${fileName}\n\nO arquivo já está disponível na sua pasta de Downloads.`);
                 // Atualiza o explorador se necessário

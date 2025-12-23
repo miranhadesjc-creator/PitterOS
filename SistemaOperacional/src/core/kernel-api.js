@@ -1,104 +1,92 @@
 // ============================================
-// SISTEMA OPERACIONAL - API DO KERNEL
+// SISTEMA OPERACIONAL - API DO KERNEL (Electron Edition)
 // ============================================
 
-// Detecta se está rodando no Tauri
-const isTauri = window.__TAURI__ !== undefined;
-
 /**
- * Invoca um comando do kernel Rust
+ * Verifica se a API segura do Electron está disponível no contexto da janela.
  */
-async function invokeKernel(command, args = {}) {
-    if (isTauri) {
-        return await window.__TAURI__.tauri.invoke(command, args);
-    }
-    // Fallback para modo browser (sem Tauri)
-    return null;
-}
+const isElectron = window.api && typeof window.api.invoke === 'function';
 
 /**
- * API do Kernel do Pitter OS
+ * API do Kernel do Pitter OS, abstraindo a comunicação com o processo principal.
  */
 export const KernelAPI = {
     /**
-     * Obtém informações do sistema
+     * Obtém informações do sistema.
      */
     async getSystemInfo() {
-        try {
-            const info = await invokeKernel('get_system_info');
-            return info || {
-                os_name: 'SistemaOperacional',
-                version: '0.1.0',
-                uptime_seconds: 0
-            };
-        } catch (error) {
-            console.warn('Kernel não disponível:', error);
+        if (!isElectron) {
+            console.warn('API do Electron não disponível. Usando dados de fallback.');
             return {
-                os_name: 'SistemaOperacional',
+                os_name: 'Pitter OS (Browser Mode)',
                 version: '0.1.0',
-                uptime_seconds: 0
+                kernel_type: 'N/A'
             };
+        }
+        try {
+            return await window.api.invoke('get-system-info');
+        } catch (error) {
+            console.error('Erro ao chamar get-system-info:', error);
+            return { os_name: 'Erro', version: 'N/A', kernel_type: 'N/A' };
         }
     },
 
     /**
-     * Cria um novo processo
+     * Cria um novo processo (simulado, pois o backend lida com processos reais).
      */
     async createProcess(name) {
-        if (!isTauri) {
-            // Simular para modo browser
-            return {
-                id: Math.floor(Math.random() * 10000),
-                name: name,
-                status: 'running',
-                memory_usage: Math.floor(Math.random() * 50000)
-            };
+        if (!isElectron) {
+            return { id: Math.floor(Math.random() * 10000), name, status: 'running', memory_usage: 0 };
         }
-        return await invokeKernel('create_process', { name });
+        return await window.api.invoke('create-process', name);
     },
 
     /**
-     * Lista todos os processos
+     * Lista todos os processos reais do WSL.
      */
     async listProcesses() {
-        if (!isTauri) {
+        if (!isElectron) {
             return [];
         }
-        const processes = await invokeKernel('list_processes');
-        return processes || [];
+        return await window.api.invoke('list-processes');
     },
 
     /**
-     * Mata um processo
+     * Mata um processo real no WSL.
      */
     async killProcess(pid) {
-        if (!isTauri) {
-            return `Processo ${pid} terminado (simulado)`;
+        if (!isElectron) {
+            return { success: false, message: `Não é possível matar o processo ${pid} no modo browser.` };
         }
-        return await invokeKernel('kill_process', { pid });
+        return await window.api.invoke('kill-process', pid);
     },
 
     /**
-     * Envia saudação
+     * Envia uma saudação (exemplo).
      */
     async greet(name) {
-        if (!isTauri) {
-            return `Olá, ${name}! Bem-vindo ao SistemaOperacional!`;
+        if (!isElectron) {
+            return `Olá, ${name}! Bem-vindo ao Pitter OS!`;
         }
-        return await invokeKernel('greet', { name });
+        return await window.api.invoke('greet', name);
     },
 
     /**
-     * Executa comando no Bash do WSL
+     * Executa um comando no Bash do WSL.
      */
     async runBashCommand(command) {
-        if (!isTauri) {
+        if (!isElectron) {
             return `Erro: Kernel real não disponível no modo browser. Comando simulado: ${command}`;
         }
         try {
-            return await invokeKernel('run_bash_command', { command });
+            const result = await window.api.invoke('run-bash-command', command);
+            if (result.success) {
+                return result.data;
+            } else {
+                return `Erro no Kernel: ${result.error}`;
+            }
         } catch (error) {
-            return `Erro no Kernel: ${error}`;
+            return `Erro fatal de IPC: ${error.message}`;
         }
     }
 };
