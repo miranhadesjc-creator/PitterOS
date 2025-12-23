@@ -13,7 +13,7 @@ function createWindow() {
         minHeight: 600,
         frame: false,
         title: 'Pitter OS',
-        icon: path.join(__dirname, 'pitter-os.ico'),
+        icon: path.join(__dirname, 'pitter-os.png'),
         autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'src', 'core', 'preload.js'),
