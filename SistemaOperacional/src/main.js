@@ -47,7 +47,7 @@ class OperatingSystem {
             { id: 'games', name: 'Games', icon: '🎮' },
             { id: 'chrome', name: 'Google', icon: '<img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" style="width: 48px; height: 48px; object-fit: contain;">' },
             { id: 'game-hub', name: 'Game Hub', icon: '<img src="assets/game_hub_icon.png" style="width: 48px; height: 48px; object-fit: contain;">' },
-            { id: 'pughall', name: 'Pug Hall', icon: '<img src="assets/pughall_icon.jpg" style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px;">' }
+            { id: 'pughall', name: 'Pug Hall', icon: '<img src="assets/pughall_icon.png" style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px;">' }
         ];
     }
 
