@@ -72,6 +72,12 @@
             </div>
             <span>Game Hub</span>
         </div>
+        <div class="desktop-icon" data-app="pughall">
+            <div class="icon-img">
+                <img src="assets/pughall_icon.jpg" alt="Pug Hall" style="border-radius: 8px;">
+            </div>
+            <span>Pug Hall</span>
+        </div>
         <div class="desktop-icon" data-app="chrome">
             <div class="icon-img chrome-icon">
                 <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
@@ -345,6 +351,25 @@
             </div>
             <div class="window-content browser-content" style="padding: 0; background: #000;">
                 <iframe id="game-hub-iframe" src="https://arthurbrando1-cell.github.io/Game-Dev-Space/"
+                    style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+        </div>
+
+        <!-- Window: Pug Hall -->
+        <div class="window hidden" id="window-pughall" style="top: 60px; left: 120px; width: 1000px; height: 650px;">
+            <div class="window-header" style="background: #2b2b2b; color: white;">
+                <div class="window-title">
+                    <span class="window-icon">🐾</span>
+                    Pug Hall
+                </div>
+                <div class="window-controls">
+                    <button class="win-btn minimize" style="color: white;" title="Minimizar">─</button>
+                    <button class="win-btn maximize" style="color: white;" title="Maximizar">☐</button>
+                    <button class="win-btn close" style="color: white;" title="Fechar">✕</button>
+                </div>
+            </div>
+            <div class="window-content browser-content" style="padding: 0; background: #fff;">
+                <iframe id="pughall-iframe" src="https://pughall.netlify.app/"
                     style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
         </div>
