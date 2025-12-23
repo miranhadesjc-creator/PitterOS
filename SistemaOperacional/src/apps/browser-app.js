@@ -2,194 +2,243 @@ export class BrowserApp {
     constructor(windowManager, config = {}) {
         this.windowManager = windowManager;
         this.windowId = config.windowId || 'window-browser';
-        this.iframeId = config.iframeId || 'browser-iframe';
+
+        // Configurable IDs
         this.addressBarId = config.addressBarId || 'browser-address-bar';
         this.btnBackId = config.btnBackId || 'browser-btn-back';
         this.btnForwardId = config.btnForwardId || 'browser-btn-forward';
         this.btnReloadId = config.btnReloadId || 'browser-btn-reload';
         this.btnHomeId = config.btnHomeId || 'browser-btn-home';
         this.btnGoId = config.btnGoId || 'browser-btn-go';
-        this.btnDownloadId = config.btnDownloadId; // Novo
+        this.btnDownloadId = config.btnDownloadId;
+
+        // Containers
+        this.tabsContainerId = 'browser-tabs-bar';
+        this.viewsContainerId = 'browser-views-container';
+        this.newTabBtnId = 'browser-new-tab-btn';
 
         this.homeUrl = config.homeUrl || 'https://www.google.com';
-        this.history = [];
+
+        // Tabs State
+        this.tabs = [];
+        this.activeTabId = null;
+        this.tabCounter = 0;
     }
 
     init(isNative = false) {
         const win = document.getElementById(this.windowId);
         if (!win) return;
 
-        this.iframe = document.getElementById(this.iframeId);
         this.addressBar = document.getElementById(this.addressBarId);
+        this.tabsContainer = document.getElementById(this.tabsContainerId);
+        this.viewsContainer = document.getElementById(this.viewsContainerId);
+        this.newTabBtn = document.getElementById(this.newTabBtnId);
+
         this.isNative = isNative;
-        this.nativeWindow = null;
 
         this.setupEventListeners();
 
-        if (this.isNative && window.__TAURI__) {
-            this.setupPortal();
+        // Create initial tab
+        this.createTab(this.homeUrl);
+    }
+
+    createTab(url) {
+        this.tabCounter++;
+        const tabId = `tab-${this.tabCounter}`;
+
+        // 1. Create Tab UI
+        const tabEl = document.createElement('div');
+        tabEl.className = 'browser-tab';
+        tabEl.dataset.id = tabId;
+        tabEl.innerHTML = `
+            <span class="browser-tab-title">Nova Guia</span>
+            <span class="browser-tab-close">x</span>
+        `;
+
+        // Insert before the new tab button
+        if (this.newTabBtn) {
+            this.tabsContainer.insertBefore(tabEl, this.newTabBtn);
         } else {
-            this.navigate(this.iframe.src || this.homeUrl);
+            this.tabsContainer.appendChild(tabEl);
+        }
+
+        // 2. Create Webview/Iframe Container
+        const viewWrapper = document.createElement('div');
+        viewWrapper.className = 'browser-webview-wrapper';
+        viewWrapper.id = `view-${tabId}`;
+
+        // Create the actual view element
+        // Attempt to create a webview first. In Electron keys it should have methods.
+        let viewEl = document.createElement('webview');
+        let isWebview = false;
+
+        // Check if it's a real webview (has 'reload' method, etc, usually after attachment or simple prop check)
+        // Trust existence of 'window.api' as sign of Electron context.
+        if (!window.api) {
+            viewEl = document.createElement('iframe');
+        } else {
+            isWebview = true;
+        }
+
+        viewEl.className = 'browser-webview';
+        viewEl.style.width = '100%';
+        viewEl.style.height = '100%';
+        viewEl.style.border = 'none';
+        viewEl.src = url;
+
+        // Allow transparency/plugins if it is a webview
+        if (isWebview) {
+            viewEl.setAttribute('allowpopups', '');
+            viewEl.setAttribute('webpreferences', 'contextIsolation=true');
+        }
+
+        viewWrapper.appendChild(viewEl);
+        this.viewsContainer.appendChild(viewWrapper);
+
+        // 3. Register State
+        const tabData = {
+            id: tabId,
+            url: url,
+            title: 'Nova Guia',
+            tabElement: tabEl,
+            viewElement: viewEl,
+            wrapperElement: viewWrapper,
+            isWebview: isWebview,
+            // Fallback history for iframes
+            history: [url],
+            historyIndex: 0
+        };
+        this.tabs.push(tabData);
+
+        // 4. Setup Listeners for this tab
+        this.setupTabListeners(tabData);
+
+        // 5. Switch to it
+        this.switchTab(tabId);
+        return tabData;
+    }
+
+    setupTabListeners(tab) {
+        // Click on tab to switch
+        tab.tabElement.addEventListener('click', (e) => {
+            if (e.target.classList.contains('browser-tab-close')) {
+                e.stopPropagation();
+                this.closeTab(tab.id);
+            } else {
+                this.switchTab(tab.id);
+            }
+        });
+
+        // Update UI helper
+        const updateUI = (newUrl, newTitle) => {
+            tab.url = newUrl || tab.url;
+            tab.title = newTitle || tab.title;
+
+            const titleEl = tab.tabElement.querySelector('.browser-tab-title');
+            if (titleEl) titleEl.textContent = tab.title;
+
+            if (this.activeTabId === tab.id && newUrl) {
+                this.addressBar.value = newUrl;
+            }
+        };
+
+        if (tab.isWebview) {
+            // WEBVIEW EVENTS
+            tab.viewElement.addEventListener('did-navigate', (e) => updateUI(e.url));
+            tab.viewElement.addEventListener('did-navigate-in-page', (e) => updateUI(e.url));
+            tab.viewElement.addEventListener('page-title-updated', (e) => updateUI(null, e.title));
+
+            tab.viewElement.addEventListener('dom-ready', () => {
+                if (window.os?.controlCenter) {
+                    this.applyVolumeToTab(tab, window.os.controlCenter.state.volume);
+                }
+            });
+        } else {
+            // IFRAME EVENTS (Limited)
+            tab.viewElement.addEventListener('load', () => {
+                try {
+                    // Try to get accessible info (same origin only)
+                    const iframeUrl = tab.viewElement.contentWindow.location.href;
+                    updateUI(iframeUrl, "Página Externa");
+                } catch (e) {
+                    // Cross origin - can't read URL. We keep what we navigated to.
+                }
+            });
         }
     }
 
-    async setupPortal() {
-        if (!window.__TAURI__) return;
+    switchTab(tabId) {
+        this.activeTabId = tabId;
 
-        // Esconde o iframe interno 
-        if (this.iframe) {
-            this.iframe.style.display = 'none';
-        }
-
-        // Registra listener no WindowManager para sincronização
-        if (this.windowManager) {
-            const originalOnUpdate = this.windowManager.onUpdate;
-            this.windowManager.onUpdate = (wid) => {
-                if (originalOnUpdate) originalOnUpdate(wid);
-                // Sincroniza todos os apps nativos quando QUALQUER janela muda
-                // (Isso garante que fiquem atrás de outras janelas se necessário)
-                this.syncPortal();
-            };
-        }
-
-        await this.openNativePortal();
+        this.tabs.forEach(t => {
+            if (t.id === tabId) {
+                t.tabElement.classList.add('active');
+                t.wrapperElement.classList.add('active');
+                this.addressBar.value = t.url;
+            } else {
+                t.tabElement.classList.remove('active');
+                t.wrapperElement.classList.remove('active');
+            }
+        });
     }
 
-    async openNativePortal() {
-        try {
-            const { WebviewWindow } = window.__TAURI__.window;
-            const label = `portal-${this.windowId.replace('window-', '')}`;
+    closeTab(tabId) {
+        const index = this.tabs.findIndex(t => t.id === tabId);
+        if (index === -1) return;
 
-            this.nativeWindow = new WebviewWindow(label, {
-                url: this.homeUrl,
-                decorations: false,
-                transparent: false,
-                alwaysOnTop: true,
-                resizable: false,
-                title: 'Pitter Portal'
-            });
+        const tab = this.tabs[index];
+        tab.tabElement.remove();
+        tab.wrapperElement.remove();
+        this.tabs.splice(index, 1);
 
-            this.nativeWindow.once('tauri://created', () => {
-                setTimeout(() => this.syncPortal(), 100);
-            });
-
-            this.nativeWindow.once('tauri://error', async () => {
-                this.nativeWindow = WebviewWindow.getByLabel(label);
-                this.syncPortal();
-            });
-        } catch (e) {
-            console.error('Portal failed:', e);
+        if (this.activeTabId === tabId) {
+            if (this.tabs.length > 0) {
+                const nextTab = this.tabs[index] || this.tabs[index - 1];
+                this.switchTab(nextTab.id);
+            } else {
+                this.createTab(this.homeUrl);
+            }
         }
     }
 
-    async syncPortal() {
-        if (!this.nativeWindow || !window.__TAURI__) return;
-
-        const winEl = document.getElementById(this.windowId);
-        const contentEl = winEl?.querySelector('.window-content');
-
-        if (!winEl || !contentEl || winEl.classList.contains('hidden')) {
-            await this.nativeWindow.hide();
-            return;
-        }
-
-        const rect = contentEl.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) {
-            await this.nativeWindow.hide();
-            return;
-        }
-
-        await this.nativeWindow.show();
-
-        // Sincroniza posição e tamanho com o Tauri
-        const { LogicalPosition, LogicalSize } = window.__TAURI__.window;
-
-        try {
-            await this.nativeWindow.setPosition(new LogicalPosition(rect.left, rect.top));
-            await this.nativeWindow.setSize(new LogicalSize(rect.width, rect.height));
-        } catch (e) {
-            // Sincronização falhou (janela fechada?)
-        }
+    getActiveTab() {
+        return this.tabs.find(t => t.id === this.activeTabId);
     }
 
     setupEventListeners() {
-        // Navigation Buttons
         document.getElementById(this.btnBackId)?.addEventListener('click', () => this.goBack());
         document.getElementById(this.btnForwardId)?.addEventListener('click', () => this.goForward());
         document.getElementById(this.btnReloadId)?.addEventListener('click', () => this.reload());
         document.getElementById(this.btnHomeId)?.addEventListener('click', () => this.goHome());
         document.getElementById(this.btnGoId)?.addEventListener('click', () => this.handleAddressBar());
 
-        // Download Simulation
+        if (this.newTabBtn) {
+            this.newTabBtn.addEventListener('click', () => this.createTab(this.homeUrl));
+        }
+
         if (this.btnDownloadId) {
             document.getElementById(this.btnDownloadId)?.addEventListener('click', () => this.simulateDownload());
         }
 
-        // Address Bar Input
+        window.addEventListener('volumeChange', (e) => {
+            this.tabs.forEach(tab => this.applyVolumeToTab(tab, e.detail.volume));
+        });
+
         this.addressBar.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.handleAddressBar();
             }
         });
-
-        // Webview Events (Sync Address Bar)
-        if (this.iframe) {
-            this.iframe.addEventListener('did-navigate', (e) => {
-                this.addressBar.value = e.url;
-            });
-            this.iframe.addEventListener('did-navigate-in-page', (e) => {
-                this.addressBar.value = e.url;
-            });
-            this.iframe.addEventListener('dom-ready', () => {
-                // Re-aplica o volume quando a página carrega
-                if (window.os?.controlCenter) {
-                    this.applyVolume(window.os.controlCenter.state.volume);
-                }
-            });
-        }
-
-        // Global Volume Listener
-        window.addEventListener('volumeChange', (e) => {
-            this.applyVolume(e.detail.volume);
-        });
-    }
-
-    applyVolume(volume) {
-        if (!this.iframe) return;
-        const vol = volume / 100;
-
-        // Injeta script para controlar volume de vídeos/áudios no webview
-        const code = `
-            (function() {
-                const elements = document.querySelectorAll('video, audio');
-                elements.forEach(el => {
-                    el.volume = ${vol};
-                    el.muted = ${vol === 0};
-                });
-            })();
-        `;
-
-        if (this.iframe.executeJavaScript) {
-            this.iframe.executeJavaScript(code);
-        }
-
-        // Muta o webview inteiro se o volume for 0
-        if (this.iframe.setAudioMuted) {
-            this.iframe.setAudioMuted(vol === 0);
-        }
     }
 
     handleAddressBar() {
         let url = this.addressBar.value.trim();
         if (!url) return;
 
-        // Smart fix for URL
         if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            // Check if it looks like a domain
             if (url.includes('.') && !url.includes(' ')) {
                 url = 'https://' + url;
             } else {
-                // It's a search
                 url = `https://www.google.com/search?q=${encodeURIComponent(url)}&igu=1`;
             }
         }
@@ -198,49 +247,70 @@ export class BrowserApp {
     }
 
     navigate(url) {
-        if (!this.iframe) return;
+        const tab = this.getActiveTab();
+        if (!tab) return;
 
-        // Smart fix for URL
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            if (url.includes('.') && !url.includes(' ')) {
-                url = 'https://' + url;
-            } else {
-                url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+        // Manual History Update
+        if (!tab.isWebview) {
+            // Remove forward history if we diverge
+            const current = tab.history[tab.historyIndex];
+            if (current !== url) {
+                tab.history = tab.history.slice(0, tab.historyIndex + 1);
+                tab.history.push(url);
+                tab.historyIndex++;
             }
         }
 
+        tab.url = url;
         this.addressBar.value = url;
-
-        // No Electron, webview pode precisar de um reset no src se estiver travado
-        if (this.iframe.src === url) {
-            this.reload();
-        } else {
-            this.iframe.src = url;
-        }
-
-        // Forçar visibilidade
-        this.iframe.style.display = 'flex';
+        tab.viewElement.src = url;
     }
 
     reload() {
-        if (this.iframe) {
-            if (typeof this.iframe.reload === 'function') {
-                this.iframe.reload();
-            } else {
-                this.iframe.src = this.iframe.src;
-            }
+        const tab = this.getActiveTab();
+        if (!tab) return;
+
+        if (tab.isWebview && typeof tab.viewElement.reload === 'function') {
+            tab.viewElement.reload();
+        } else {
+            // Force refresh iframe
+            tab.viewElement.src = tab.viewElement.src;
         }
     }
 
     goBack() {
-        if (this.iframe && typeof this.iframe.goBack === 'function') {
-            this.iframe.goBack();
+        const tab = this.getActiveTab();
+        if (!tab) return;
+
+        if (tab.isWebview && typeof tab.viewElement.goBack === 'function') {
+            if (tab.viewElement.canGoBack()) tab.viewElement.goBack();
+        } else {
+            // Manual History Back
+            if (tab.historyIndex > 0) {
+                tab.historyIndex--;
+                const prevUrl = tab.history[tab.historyIndex];
+                tab.url = prevUrl;
+                this.addressBar.value = prevUrl;
+                tab.viewElement.src = prevUrl;
+            }
         }
     }
 
     goForward() {
-        if (this.iframe && typeof this.iframe.goForward === 'function') {
-            this.iframe.goForward();
+        const tab = this.getActiveTab();
+        if (!tab) return;
+
+        if (tab.isWebview && typeof tab.viewElement.goForward === 'function') {
+            if (tab.viewElement.canGoForward()) tab.viewElement.goForward();
+        } else {
+            // Manual History Forward
+            if (tab.historyIndex < tab.history.length - 1) {
+                tab.historyIndex++;
+                const nextUrl = tab.history[tab.historyIndex];
+                tab.url = nextUrl;
+                this.addressBar.value = nextUrl;
+                tab.viewElement.src = nextUrl;
+            }
         }
     }
 
@@ -248,16 +318,34 @@ export class BrowserApp {
         this.navigate(this.homeUrl);
     }
 
+    applyVolumeToTab(tab, volume) {
+        if (!tab.viewElement || !tab.isWebview) return;
+        const vol = volume / 100;
+
+        if (tab.viewElement.executeJavaScript) {
+            const code = `
+                (function() {
+                    const elements = document.querySelectorAll('video, audio');
+                    elements.forEach(el => {
+                        el.volume = ${vol};
+                        el.muted = ${vol === 0};
+                    });
+                })();
+            `;
+            tab.viewElement.executeJavaScript(code);
+            if (tab.viewElement.setAudioMuted) {
+                tab.viewElement.setAudioMuted(vol === 0);
+            }
+        }
+    }
+
     async simulateDownload() {
         const { downloadManager } = await import('../core/download-manager.js');
         const url = this.addressBar?.value?.trim();
-
         if (!url) {
             alert('Digite uma URL na barra de endereços para baixar.');
             return;
         }
-
-        // Usa o novo método de download real via Tauri
         await downloadManager.downloadFromAddressBar(url);
     }
 }

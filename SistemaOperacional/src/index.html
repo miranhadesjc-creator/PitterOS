@@ -654,10 +654,17 @@
                     <button class="win-btn close">×</button>
                 </div>
             </div>
-            <div class="window-content browser-content" style="display: flex; flex-direction: column;">
-                <!-- Toolbar -->
+            <div class="window-content browser-content" style="display: flex; flex-direction: column; padding: 0;">
+
+                <!-- Tabs Bar -->
+                <div class="browser-tabs" id="browser-tabs-bar">
+                    <!-- Tabs are injected here JS -->
+                    <button class="browser-new-tab-btn" id="browser-new-tab-btn">+</button>
+                </div>
+
+                <!-- Toolbar (Shared) -->
                 <div class="browser-toolbar"
-                    style="padding: 8px; background: #f0f0f0; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #ccc;">
+                    style="padding: 8px; background: #fff; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #ccc;">
                     <button id="browser-btn-back" class="win-button icon-only">⬅️</button>
                     <button id="browser-btn-forward" class="win-button icon-only">➡️</button>
                     <button id="browser-btn-reload" class="win-button icon-only">🔄</button>
@@ -667,15 +674,17 @@
                         style="flex: 1; padding: 6px 12px; border-radius: 20px; border: 1px solid #ddd; outline: none; font-size: 14px;">
 
                     <button id="browser-btn-go" class="win-button icon-only">Go</button>
+                    <button class="win-button" id="chrome-btn-download" title="Simular Download"
+                        style="margin-left: 8px;">
+                        <span>📥</span> Baixar
+                    </button>
                 </div>
 
-                <!-- Browser View -->
-                <div style="flex: 1; position: relative; background: white;">
-                    <iframe id="browser-iframe" src="about:blank"
-                        style="width: 100%; height: 100%; border: none;"></iframe>
-                    <!-- Warning Overlay -->
+                <!-- Browser Views Container -->
+                <div id="browser-views-container" class="browser-content-container">
+                    <!-- Webviews are injected here via JS -->
                     <div id="browser-error" class="hidden"
-                        style="position: absolute; top:0; left:0; right:0; padding: 20px; background: #fff3cd; color: #856404; text-align: center;">
+                        style="position: absolute; top:0; left:0; right:0; padding: 20px; background: #fff3cd; color: #856404; text-align: center; z-index: 9999;">
                         ⚠️ Alguns sites (como Google/YouTube) não permitem carregamento em janela simulada.
                     </div>
                 </div>
